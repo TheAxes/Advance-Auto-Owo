@@ -8,7 +8,6 @@ from wonderwords import RandomSentence
 from datetime import timedelta
 from io import BytesIO
 import base64
-import capsolver
 from solver import auth, solve_imagecaptcha, solve_owo
 from colorama import Fore
 sentences = RandomSentence()
@@ -17,7 +16,7 @@ def clear():
 
 with open('config.json') as f:
     config = json.load(f)
-
+next_daily = 0
 
 try:
     prefix = config.get('prefix')
@@ -281,6 +280,7 @@ async def autosleep(ctx):
      await ctx.channel.send(f"{prefix}stopautoowo")
      await asyncio.sleep(random.randrange(180, 360))
      await ctx.channel.send(f"{prefix}autoowo")
+     print("bot resumed")
 
 	
 @client.command()
