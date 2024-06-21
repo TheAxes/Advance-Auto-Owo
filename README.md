@@ -27,13 +27,20 @@ git clone https://github.com/TheAxes/Advance-Auto-Owo.git
 
 Step2:
 ```
-change details in config.json
+cd Advance-Auto-Owo
 ```
 step3:
 ```
+change settings in config.json
+```
+step4:
+```
+pip install -r requirements.txt
+```
+step5
+```
 python main.py
 ```
-
 ### Video Tutorial
 coming soon
 
