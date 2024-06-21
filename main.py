@@ -282,6 +282,9 @@ async def autosleep(ctx):
      await ctx.channel.send(f"{prefix}autoowo")
      print("bot resumed")
 
+@client.command()
+async def help(ctx):
+     await ctx.send(f"> {prefix}autoowo\n> {prefix}stopautoowo") 
 	
 @client.command()
 async def autoowo(ctx):
