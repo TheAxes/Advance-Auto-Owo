@@ -275,7 +275,7 @@ async def owobalace(ctx):
 
 @tasks.loop(minutes=random.randrange(15, 20))
 async def autosleep(ctx):
-     await asyncio.sleep(random.randrange(180, 360))
+     # await asyncio.sleep(random.randrange(180, 360))
      print("bot sleeping")
      await ctx.channel.send(f"{prefix}stopautoowo")
      await asyncio.sleep(random.randrange(180, 360))
