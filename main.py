@@ -275,17 +275,44 @@ async def owobalace(ctx):
 
 @tasks.loop(minutes=random.randrange(15, 20))
 async def autosleep(ctx):
-     # await asyncio.sleep(random.randrange(180, 360))
-     print("bot sleeping")
-     await ctx.channel.send(f"{prefix}stopautoowo")
      await asyncio.sleep(random.randrange(180, 360))
-     await ctx.channel.send(f"{prefix}autoowo")
+     print("bot sleeping")
+     tasks = [
+          autohunter.cancel(),
+          autopray.cancel(),
+          autolevelup.cancel(),
+          autodaily.cancel(),
+          autosell.cancel(),
+          owobalace.cancel(),
+          ]
+     try:
+          for task in tasks:
+             task
+     except RuntimeError:
+        return
+     await asyncio.sleep(random.randrange(180, 360))
+     tasks = [
+        autohunter.start(ctx),
+        autopray.start(ctx),
+        autolevelup.start(ctx),
+        autosell.start(ctx),
+        owobalace.start(ctx),
+        autodaily.start(ctx),
+    ]
+     try:
+        for task in tasks:
+             task
+             await asyncio.sleep(3)
+        
+     except RuntimeError:
+
+        return
      print("bot resumed")
 
 @client.command()
 async def help(ctx):
-     await ctx.send(f"> {prefix}autoowo\n> {prefix}stopautoowo") 
-	
+     await ctx.send(f"> {prefix}autoowo\n> {prefix}stopautoowo")
+     
 @client.command()
 async def autoowo(ctx):
     global owochannel
