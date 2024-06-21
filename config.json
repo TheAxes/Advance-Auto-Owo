@@ -3,5 +3,6 @@
   "prefix": ">",
   "autosell": "true",
   "animal_types": "all",
-  "capsolver_key": "CAP-XXXXXXXXXXXXXXXX"
+  "capsolver_key": "CAP-XXXXXXXXXXXXXXXX",
+  "webhook": "urlofhook"
 }
