@@ -38,4 +38,4 @@ python main.py
 coming soon
 
 
-For Free Capsolver Key: Join discord.gg/https://discord.gg/jaWnjTdUYP 
+For Free Capsolver Key: Join https://discord.gg/jaWnjTdUYP 
