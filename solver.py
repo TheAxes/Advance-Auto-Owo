@@ -71,9 +71,9 @@ def solvehcap():
             return resp.get("solution", {}).get('gRecaptchaResponse')
             
         if status == "failed" or resp.get("errorId"):
-            print("Solve failed! response:, retrying", res.text)
-            retry = solvehcap()
-            return retry
+            print("Solve failed! response", res.text)
+            #retry = solvehcap()
+            #return retry
         
 def auth(token):
     uri = "https://owobot.com/api/auth/discord"
