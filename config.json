@@ -1,7 +1,7 @@
 {
-  "token": "Xxxx",
+  "token": "XXXXXXXXXXXXXXXXXXXX",
   "prefix": ">",
   "autosell": "true",
   "animal_types": "all",
-  "capkey": "CAP-XXXXXX"
+  "capsolver_key": "CAP-XXXXXXXXXXXXXXXX"
 }
