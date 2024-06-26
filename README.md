@@ -52,7 +52,7 @@ step5
 python main.py
 ```
 ### Video Tutorial
-coming soon
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/CvS5U7pufRg/0.jpg)](https://www.youtube.com/watch?v=CvS5U7pufRg)
 
 
 For Free Capsolver Key: Join https://discord.gg/jaWnjTdUYP 
