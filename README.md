@@ -56,3 +56,6 @@ python main.py
 
 
 For Free Capsolver Key: Join https://discord.gg/jaWnjTdUYP 
+
+### Donate 
+Ltc: ```LSpfN7jD67NwE2356mGcXudybxTR6ZHFdY```
