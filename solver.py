@@ -35,6 +35,7 @@ import time
 from io import BytesIO
 import base64
 import json
+from twocaptcha import TwoCaptcha
 client = httpx.Client()
 session = tls_client.Session(client_identifier="firefox_111", random_tls_extension_order=True)    
 
@@ -42,7 +43,9 @@ session = tls_client.Session(client_identifier="firefox_111", random_tls_extensi
 
 with open('config.json') as f:
     config = json.load(f)
-api_key = config['capsolver_key']
+which_solver = config["captcha_service"]
+
+api_key = config['cap_key']
 def solvehcap():
     payload = {
         "clientKey": api_key,
@@ -145,22 +148,32 @@ def to_base64(image_location, is_url=True):
         return str(e)
     
 def solve_imagecaptcha(imageurl):
-    base64Image = to_base64(image_location=imageurl, is_url=True)
-    createtask = requests.post("https://api.capsolver.com/createTask",
-                               json={
-  "clientKey": api_key,
-  "task": {
-    "type": "ImageToTextTask",
-    "body":base64Image
-  }
-})
-    return createtask.json().get("solution", {}).get('text')   
+	if which_solver == "twocaptcha":
+		twosolver = TwoCaptcha(api_key)
+		result = twosolver.normal(imageurl)
+	else:
+		base64Image = to_base64(image_location=imageurl, is_url=True)
+		createtask = requests.post("https://api.capsolver.com/createTask",
+		json={
+		"clientKey": api_key,
+		"task": {
+		"type": "ImageToTextTask",
+		"body":base64Image
+		}
+		})
+		result = createtask.json().get("solution", {}).get('text')   
+    return result
 
 def solve_owo(cookie):
+	if which_solver == "twocaptcha":
+		twosolver = TwoCaptcha(api_key)
+		solution = twosolver.hcaptcha(sitekey='a6a1d5ce-612d-472d-8e37-7601408fbc09',
+                            url='https://owobot.com')
     solution =  solvehcap()
     solve = requests.post("https://owobot.com/api/captcha/verify", json={"token": solution}, headers={"Cookie": cookie})
     if solve.status_code == 200:
         print("(+) Solved Captcha")
         return "solved"
     else:
+    	print(f'cannot submit response reason: {solve.text}')
         return "cant"
