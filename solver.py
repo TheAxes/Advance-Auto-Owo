@@ -49,6 +49,7 @@ api_key = config['cap_key']
 def solvehcap():
     payload = {
         "clientKey": api_key,
+        "appId": "5122588A-8581-4440-8044-15D010D2B23C",
         "task": {
             "type": 'HCaptchaTaskProxyLess',
             "websiteKey": "a6a1d5ce-612d-472d-8e37-7601408fbc09",
@@ -156,6 +157,7 @@ def solve_imagecaptcha(imageurl):
 		createtask = requests.post("https://api.capsolver.com/createTask",
 		json={
 		"clientKey": api_key,
+		"appId": "5122588A-8581-4440-8044-15D010D2B23C",
 		"task": {
 		"type": "ImageToTextTask",
 		"body":base64Image
