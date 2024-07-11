@@ -151,7 +151,7 @@ def to_base64(image_location, is_url=True):
 def solve_imagecaptcha(imageurl):
 	if which_solver == "twocaptcha":
 		twosolver = TwoCaptcha(api_key)
-		result = twosolver.normal(imageurl)
+		result = twosolver.normal(imageurl, numeric = 2, minLen = lenghth, maxLen = lenghth, phrase = 0, caseSensitive = 0, calc = 0, lang = "en")['code']
 	else:
 		base64Image = to_base64(image_location=imageurl, is_url=True)
 		createtask = requests.post("https://api.capsolver.com/createTask",
@@ -169,7 +169,7 @@ def solve_imagecaptcha(imageurl):
 def solve_owo(cookie):
 	if which_solver == "twocaptcha":
 		twosolver = TwoCaptcha(api_key)
-		solution = twosolver.hcaptcha(sitekey='a6a1d5ce-612d-472d-8e37-7601408fbc09', url='https://owobot.com')
+		solution = twosolver.hcaptcha(sitekey='a6a1d5ce-612d-472d-8e37-7601408fbc09', url='https://owobot.com')['code']
 	else:
 		solution =  solvehcap()
 	solve = requests.post("https://owobot.com/api/captcha/verify", json={"token": solution}, headers={"Cookie": cookie})
