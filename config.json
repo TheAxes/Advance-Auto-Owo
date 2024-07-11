@@ -3,6 +3,8 @@
   "prefix": ">",
   "autosell": "true",
   "animal_types": "all",
-  "capsolver_key": "CAP-XXXXXXXXXXXXXXXX",
+  "avail_services": ["twocaptcha", "capsolver"],
+  "captcha_service": "twocaptcha",
+  "cap_key": "CAP-XXXXXXXXXXXXXXXX",
   "webhook": "urlofhook"
 }
