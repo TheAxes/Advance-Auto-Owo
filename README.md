@@ -8,7 +8,7 @@ A Epic OwO Bot Selfbot, which can bypass ban by solving any captcha [ web or ima
 - [x] Auto Level Up 
 - [x] Auto Daily
 - [x] Auto Sell
-- [x] Auto Captcha Solve ( uses capsolver ) if failed to solve auto stops
+- [x] Auto Captcha Solve ( uses capsolver/ twocaptcha) if failed to solve auto stops
 - [x] Webhook Notifier ( about captcha )
 
 ## Todo
