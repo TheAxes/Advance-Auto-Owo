@@ -4,3 +4,4 @@ requests
 tls-client
 wonderwords
 colorama
+2captcha-python
