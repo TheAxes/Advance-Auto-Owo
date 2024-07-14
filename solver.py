@@ -32,53 +32,14 @@ import requests
 import httpx
 import tls_client
 import time
-from io import BytesIO
-import base64
+from captcha_solver import Hcaptcha_Solver, ImageToTextSolver
 import json
-from twocaptcha import TwoCaptcha
+from colorama import Fore
 client = httpx.Client()
 session = tls_client.Session(client_identifier="firefox_111", random_tls_extension_order=True)    
 
 # By Youtube.com/@theaxes
 
-with open('config.json') as f:
-    config = json.load(f)
-which_solver = config["captcha_service"]
-
-api_key = config['cap_key']
-def solvehcap():
-    payload = {
-        "clientKey": api_key,
-        "appId": "5122588A-8581-4440-8044-15D010D2B23C",
-        "task": {
-            "type": 'HCaptchaTaskProxyLess',
-            "websiteKey": "a6a1d5ce-612d-472d-8e37-7601408fbc09",
-            "websiteURL": "https://owobot.com"
-        }
-    }
-    res = requests.post("https://api.capsolver.com/createTask", json=payload)
-    resp = res.json()
-    task_id = resp.get("taskId")
-    if not task_id:
-        print("Failed to create task:", res.text)
-        return
-    print(f"Got taskId: {task_id} / Getting result...")
-
-    while True:
-        time.sleep(1)  # delay
-        payload = {"clientKey": api_key, "taskId": task_id}
-        res = requests.post("https://api.capsolver.com/getTaskResult", json=payload)
-        resp = res.json()
-        status = resp.get("status")
-        if status == "ready":
-            print("got result of captcha")
-            return resp.get("solution", {}).get('gRecaptchaResponse')
-            
-        if status == "failed" or resp.get("errorId"):
-            print("Solve failed! response", res.text)
-            #retry = solvehcap()
-            #return retry
-        
 def auth(token):
     uri = "https://owobot.com/api/auth/discord"
     r = client.get(uri)
@@ -131,51 +92,17 @@ def auth(token):
         else:
             print(f"(!) Submit Error | {response.text}")
 
-def to_base64(image_location, is_url=True):
-    try:
-        if is_url:
-            response = requests.get(image_location)
-            if response.status_code == 200:
-                image_bytes = BytesIO(response.content)
-            else:
-                return "Unable to fetch image. Status code: " + str(response.status_code)
-        else:
-            with open(image_location, 'rb') as image_file:
-                image_bytes = BytesIO(image_file.read())
-
-        base64_string = base64.b64encode(image_bytes.read()).decode('utf-8')
-        return base64_string
-    except Exception as e:
-        return str(e)
     
-def solve_imagecaptcha(imageurl):
-	if which_solver == "twocaptcha":
-		twosolver = TwoCaptcha(api_key)
-		result = twosolver.normal(imageurl, numeric = 2, minLen = lenghth, maxLen = lenghth, phrase = 0, caseSensitive = 0, calc = 0, lang = "en")['code']
-	else:
-		base64Image = to_base64(image_location=imageurl, is_url=True)
-		createtask = requests.post("https://api.capsolver.com/createTask",
-		json={
-		"clientKey": api_key,
-		"appId": "5122588A-8581-4440-8044-15D010D2B23C",
-		"task": {
-		"type": "ImageToTextTask",
-		"body":base64Image
-		}
-		})
-		result = createtask.json().get("solution", {}).get('text')   
-	return result
+
 
 def solve_owo(cookie):
-	if which_solver == "twocaptcha":
-		twosolver = TwoCaptcha(api_key)
-		solution = twosolver.hcaptcha(sitekey='a6a1d5ce-612d-472d-8e37-7601408fbc09', url='https://owobot.com')['code']
-	else:
-		solution =  solvehcap()
-	solve = requests.post("https://owobot.com/api/captcha/verify", json={"token": solution}, headers={"Cookie": cookie})
-	if solve.status_code == 200:
-		print("(+) Solved Captcha")
-		return "solved"
-	else:
-		print(f'cannot submit response reason: {solve.text}')
-		return "cant" 
+     solution = Hcaptcha_Solver()
+     response = requests.post("https://owobot.com/api/captcha/verify", json={"token": solution}, headers={"Cookie": cookie})
+     if response.status_code == 200:
+        print(f"{Fore.GREEN}[Solver] HCaptcha Responsed Succuessfully{Fore.RESET}")
+        return "solved"
+     else:
+        print(f'{Fore.RED}[Solver] cannot submit response reason: {response.text}{Fore.RESET}')
+        return "cant" 
+     
+     
