@@ -8,9 +8,11 @@ from wonderwords import RandomSentence
 from datetime import timedelta
 from io import BytesIO
 import base64
-from solver import auth, solve_imagecaptcha, solve_owo
+from solver import auth, solve_owo
+from captcha_solver import ImageToTextSolver
 from colorama import Fore
 sentences = RandomSentence()
+version = '1.0'
 def clear():
     os.system('title Advanced Auto OwO && cls' if os.name=='nt' else 'clear')
 
@@ -24,7 +26,7 @@ try:
     hook_url = config.get('webhook')
 except:
 	print("no token found")
-owochannel = []
+owochannel = config['settings']['channel_id']
 banner = '''
 
               _                               _                 _           ____                
@@ -47,9 +49,55 @@ headers = {"Authorization": token}
 r = requests.get("https://discord.com/api/v9/users/@me", headers=headers)
 user_data = r.json()
 globalname =  user_data["global_name"]	
-	
+all_tasks = []
+all_tasks_stop = []
+ 
+        
+def create_tasks():
+    global all_tasks
+    global all_tasks_stop
+    settings = config['settings']
+    try:
+        if settings["autosell"] == "true":
+            all_tasks.append(autosell)
+            all_tasks_stop.append(autosell)
+        if settings["autolevelup"] == "true":
+            all_tasks.append(autolevelup)
+            all_tasks_stop.append(autolevelup)
+        if settings["autoslot"] == "true":
+             all_tasks.append(autoslot)
+             all_tasks_stop.append(autoslot)
+    except Exception as e:
+         print(e)
+
+    print("")
+    try:
+         all_tasks.append(autohunter)
+         all_tasks.append(autopray)
+         all_tasks.append(owobalace)
+         all_tasks.append(autodaily)
+         all_tasks.append(autosleep)
+         all_tasks_stop.append(autohunter)
+         all_tasks_stop.append(autopray)
+         all_tasks_stop.append(autodaily)
+         all_tasks_stop.append(owobalace)
+         all_tasks_stop.append(autosleep)
+    except Exception as e:
+         print(e)
+   
+
+
 
 client = commands.Bot(description='Advanced Auto OwO', command_prefix=prefix, case_insensitive=True, self_bot=True, help_command=None)
+
+def check_version():
+    r = requests.get("https://raw.githubusercontent.com/TheAxes/Advance-Auto-Owo/main/Current-version.txt")
+    if r.text.rstrip() == version:
+        return ''
+    else:
+        print(r.text)
+        return f'{Fore.LIGHTMAGENTA_EX}A Newer Version Is Available: {r.text}\nConsider updating it: https://github.com/TheAxes/Advance-Auto-Owo{Fore.RESET}'
+
 def get_entry():
     file_path = "entry.json"
     with open(file_path, "r") as file:
@@ -70,18 +118,16 @@ def update_entry(new_cowoncy=None, new_nextdaily=None, new_cookie=None):
         file.seek(0)
         json.dump(data, file, indent=4)
         file.truncate()
-		
-    
+	
 
 
-
-def solvecap(problem):
+def solvecap(problem, lambaa=None):
      if problem == "https://owobot.com/captcha":
           cooked = get_entry()[2]
           sol = solve_owo(cooked) 
           return f"{sol}|hcap"     
      else:
-          sol = solve_imagecaptcha(imageurl=problem)
+          sol = ImageToTextSolver(imageurl=problem, length=lambaa)
           return f"{sol}|image"
    
 def sendhook(content, description):
@@ -112,19 +158,21 @@ def sendhook(content, description):
     try:
         response = requests.post(webhook_url, data=json.dumps(payload), headers=headers)
         response.raise_for_status()
-        print('Webhook sent successfully!')
+        print(f'{Fore.LIGHTGREEN_EX}[Notification] Sent A Webhook{Fore.RESET}')
     except requests.exceptions.RequestException as e:
-        print(f'Failed to send WEbhook: {e}')
+        print(f'{Fore.RED}[Notification] Unable to Sent A Webhook: {e}{Fore.RESET}')
 
 @client.event
 async def on_connect():
           print("please wait, bot loading")
+          create_tasks()
           cook = auth(token)
           update_entry(new_cookie=cook)
           clear()
           print(f"{Fore.LIGHTCYAN_EX}{banner}{Fore.RESET}")
-          print(f"Account : {client.user}")
+          print(f"Account : {globalname}")
           print(f"prefix : {prefix}")
+          print(check_version())
           await client.change_presence(status=discord.Status.dnd, 
                              activity=discord.Activity(type=discord.ActivityType.playing, 
                                                          name="Auto OwO",
@@ -147,24 +195,15 @@ async def on_message(message):
                 match = re.search(pattern, message.content)
                 if match:
                     cowoncy_amount = match.group(1).replace(",", "")
-                    print(f"You Have {cowoncy_amount} Cowoncy")
+                    print(f"{Fore.LIGHTYELLOW_EX}[Logger] You Have {cowoncy_amount} Cowoncy{Fore.RESET}")
                     update_entry(new_cowoncy=cowoncy_amount)
                 return
             else:
                 # Check for captcha detection message
                 if "⚠️" in message.content:
                     # Stop various tasks
-                    tasks = [
-                        autohunter.cancel(),
-        autopray.cancel(),
-        autolevelup.cancel(),
-        autodaily.cancel(),
-        autosell.cancel(),
-        owobalace.cancel(),
-        autosleep.cancel()
-                    ]
-                    for task in tasks:
-                         task
+                    for task in all_tasks_stop:
+                         task.cancel()
                     
                     # Retrieve captcha details
                     captchamsg = message.jump_url
@@ -177,7 +216,10 @@ async def on_message(message):
                     sendhook(content=f"@everyone Captcha Alert!", description=f"A Captcha Has Been Detected!\n*Captcha Message*: [Jump to Message]({captchamsg})")
                     
                     # Solve captcha
-                    solution = solvecap(captcha) 
+                    if "letter word" in message.content:
+                         solution = solvecap(captcha, lambaa = message.content[message.content.find("letter word") - 2]) 
+                    else:
+                         solution = solvecap(captcha, lambaa = None) 
                     user = client.get_user(408785106942164992)
                     # Send the solution to the channel
                     if solution.split("|")[1] == "image":
@@ -200,13 +242,13 @@ async def on_message(message):
                             await client.close()
                     
                     except asyncio.TimeoutError:
-                        print(f"{Fore.RED}captcha timed out.{Fore.RESET}")
+                        print(f"{Fore.RED}[Timeout] captcha timed out.{Fore.RESET}")
                         sendhook(content=f"@everyone Captcha Alert!", description=f"A Captcha Cant Be Solved, Bot Has Been Stopped!, Reason: Captcha Took Too Long Too Solve")
                         await client.close()
                     
                     
                       # Close the bot client after verification
-                if "nu" or "your next" in message.content.lower():
+                if "nu" or "your next" or "your daily" in message.content.lower():
                      if message.author.id == 408785106942164992:
                           if globalname in message.content:
                                target_message = message
@@ -219,95 +261,91 @@ async def on_message(message):
                                     total_seconds = hours * 3600 + minutes * 60 + seconds
                                     next_daily = time.time() + total_seconds
                                     update_entry(new_nextdaily=next_daily)
-                                    print(f"Next Daily: {str(timedelta(seconds=total_seconds))}s")
+                                    print(f"{Fore.LIGHTYELLOW_EX}[Logger] Your Next Daily: {str(timedelta(seconds=total_seconds))}s{Fore.RESET}")
                                else:
                                     if "Here is your daily" in target_message.content:
-                                         print("Claimed Daily")
+                                         print(f"{Fore.LIGHTYELLOW_EX}[Logger] Daily Has Been Claimed{Fore.RESET}")
                             
 
 			
 @tasks.loop(seconds=random.randrange(18, 30))
-async def autohunter(ctx):
-     await ctx.channel.trigger_typing()
+async def autohunter():
+     channel = client.get_channel(owochannel)
+     await channel.trigger_typing()
      await asyncio.sleep(3)
-     await ctx.channel.send("owo hunt")
+     await channel.send("owo hunt")
      await asyncio.sleep(9)
-     await ctx.channel.send("owo battle")
+     await channel.send("owo battle")
 
 @tasks.loop(minutes=random.randrange(5, 7))
-async def autopray(ctx):
+async def autopray():
+    channel = client.get_channel(owochannel)
     await asyncio.sleep(8)
-    await ctx.channel.trigger_typing()
-    await ctx.channel.send("owo pray")
+    await channel.trigger_typing()
+    await channel.send("owo pray")
 	
 
 
 @tasks.loop(seconds=random.randrange(15, 60))
-async def autolevelup(ctx):
-     await ctx.channel.trigger_typing()
+async def autolevelup():
+     channel = client.get_channel(owochannel)
+     await channel.trigger_typing()
      await asyncio.sleep(11)
      xp = random.choice(("owo", "owo xp", "uwu"))
      message = random.choice((xp, f"{sentences.sentence()}{xp}"))
-     await ctx.channel.send(message)
+     await channel.send(message)
      await asyncio.sleep(3)
 
 @tasks.loop(minutes=3)
-async def autodaily(ctx):
+async def autodaily():
+            channel = client.get_channel(owochannel)
             if not get_entry()[1] - time.time() <= 0:
                   return
-            await ctx.channel.trigger_typing()
+            await channel.trigger_typing()
             await asyncio.sleep(3)
-            await ctx.channel.send("owo daily")
+            await channel.send("owo daily")
             
 
 @tasks.loop(minutes=2)
-async def autosell(ctx):
+async def autosell():
+     channel = client.get_channel(owochannel)
      await asyncio.sleep(13)
-     if config["autosell"] == "true":
-        await ctx.channel.send(f"owo sell {config['animal_types']}")
-     else:
-          return
+     await channel.send(f"owo sell {config['settings']['animal_types']}")
+    
+@tasks.loop(minutes=2)
+async def autoslot():
+     await asyncio.sleep(30)
+     channel = client.get_channel(owochannel)
+     amount = random.choice(config['settings']['slotamount'])
+     await channel.send(f"owo s {amount}")
 
 @tasks.loop(minutes=5)
-async def owobalace(ctx):
+async def owobalace():
+     channel = client.get_channel(owochannel)
      await asyncio.sleep(5)
-     await ctx.channel.send(f"owo cash")
+     await channel.send(f"owo cash")
 
 @tasks.loop(minutes=random.randrange(15, 20))
-async def autosleep(ctx):
+async def autosleep():
      await asyncio.sleep(random.randrange(180, 360))
-     print("bot sleeping")
-     tasks = [
-          autohunter.cancel(),
-          autopray.cancel(),
-          autolevelup.cancel(),
-          autodaily.cancel(),
-          autosell.cancel(),
-          owobalace.cancel(),
-          ]
+     print(f"{Fore.LIGHTGREEN_EX}[Sleeper] bot sleeping{Fore.RESET}")
+     all_tasks_stop.remove(autosleep)
      try:
-          for task in tasks:
-             task
+          for task in all_tasks_stop:
+             task.cancel()
      except RuntimeError:
         return
      await asyncio.sleep(random.randrange(180, 360))
-     tasks = [
-        autohunter.start(ctx),
-        autopray.start(ctx),
-        autolevelup.start(ctx),
-        autosell.start(ctx),
-        owobalace.start(ctx),
-        autodaily.start(ctx),
-    ]
+     all_tasks_stop.append(autosleep)
+     print(f"{Fore.LIGHTGREEN_EX}[Sleeper] bot again resumed{Fore.RESET}")
      try:
-        for task in tasks:
-             task
+        for task in all_tasks:
+             task.start()
              await asyncio.sleep(3)
         
      except RuntimeError:
 
         return
-     print("bot resumed")
 
 @client.command()
 async def help(ctx):
@@ -315,44 +353,21 @@ async def help(ctx):
      
 @client.command()
 async def autoowo(ctx):
-    global owochannel
-    owochannel = ctx.channel.id
-    tasks = [
-        autohunter.start(ctx),
-        autopray.start(ctx),
-        autolevelup.start(ctx),
-        autosell.start(ctx),
-        owobalace.start(ctx),
-        autodaily.start(ctx),
-        autosleep.start(ctx)
-    ]
     await ctx.send("> Started Auto OwO")
     try:
-        for task in tasks:
-             task
+        for task in all_tasks:
+             task.start()
              await asyncio.sleep(3)
-        
     except RuntimeError:
-
         return
 
 @client.command()
 async def stopautoowo(ctx):
-    tasks = [
-        autohunter.cancel(),
-        autopray.cancel(),
-        autolevelup.cancel(),
-        autodaily.cancel(),
-        autosell.cancel(),
-        owobalace.cancel(),
-        autosleep.cancel()
-    ]
     await ctx.send("> Stopped Auto OwO")
     try:
-        for task in tasks:
-             task
+        for task in all_tasks_stop:
+             task.cancel()
     except RuntimeError:
         return
 
 client.run(token)
-
