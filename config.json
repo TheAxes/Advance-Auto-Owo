@@ -2,7 +2,7 @@
     "token": "enter you account token",
     "prefix": ">",
     "settings": {
-      "channel_id": enter channel id where you want to bot to be function,
+      "channel_id": 47252635353636,
       "autosell": "true",
       "animal_types": "all",
       "autolevelup": "true",
