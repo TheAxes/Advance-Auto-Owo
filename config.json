@@ -1,10 +1,16 @@
 {
-  "token": "XXXXXXXXXXXXXXXXXXXX",
-  "prefix": ">",
-  "autosell": "true",
-  "animal_types": "all",
-  "avail_services": ["twocaptcha", "capsolver"],
-  "captcha_service": "twocaptcha",
-  "cap_key": "CAP-XXXXXXXXXXXXXXXX",
-  "webhook": "urlofhook"
+    "token": "enter you account token",
+    "prefix": ">",
+    "settings": {
+      "channel_id": enter channel id where you want to bot to be function,
+      "autosell": "true",
+      "animal_types": "all",
+      "autolevelup": "true",
+      "autoslot": "true",
+      "slotamount": ["100", "500", "200"]
+    },
+    "avail_services": ["twocaptcha", "capsolver", "capmonster", "captchaai"],
+    "captcha_service": "twocaptcha",
+    "cap_key": "cxxxxxxxxxxx",
+    "webhook": "url of hook"
 }
