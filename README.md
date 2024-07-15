@@ -14,13 +14,18 @@ A Epic OwO Bot Selfbot, which can bypass ban by solving any captcha [ web or ima
 - [x] Logging [ OwOCash, Dailies Etc.]
 <details>
   <summary>Captcha Solvers</summary>
-  1. 2Captcha: https://2captcha.com/?from=17257577
+
+
+  1. [2Captcha](https://2captcha.com/?from=17257577)
   <br>
-  2. CapSolver: https://dashboard.capsolver.com/passport/register?inviteCode=XxmebTqf6O8S
+  
+  2. [CapSolver](https://dashboard.capsolver.com/passport/register?inviteCode=XxmebTqf6O8S)
   <br>
-  3. CaptchaAi: https://captchaai.com/?from=80668
+  
+  3. [CaptchaAi](https://captchaai.com/?from=80668)
   <br>
-  4. CapMonster: https://captchaai.com/?from=80668
+  
+  4. [CapMonster](https://captchaai.com/?from=80668)
   <br>
 </details>
 
