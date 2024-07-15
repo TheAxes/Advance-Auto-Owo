@@ -12,7 +12,7 @@ from solver import auth, solve_owo
 from captcha_solver import ImageToTextSolver
 from colorama import Fore
 sentences = RandomSentence()
-version = '1.0'
+version = '1.1'
 def clear():
     os.system('title Advanced Auto OwO && cls' if os.name=='nt' else 'clear')
 
@@ -200,7 +200,7 @@ async def on_message(message):
                 return
             else:
                 # Check for captcha detection message
-                if "⚠️" in message.content:
+                if ("⚠️" in message.content) and (("letter word" in message.content) or ("https://owobot.com/captcha" in message.content)):
                     # Stop various tasks
                     for task in all_tasks_stop:
                          task.cancel()
@@ -224,8 +224,8 @@ async def on_message(message):
                     # Send the solution to the channel
                     if solution.split("|")[1] == "image":
                          await user.send(solution.split("|")[0])
-                    elif solution.split("|")[1] == "image":
-                         await user.send("dn")
+                    elif solution.split("|")[1] == "hcap":
+                         await user.send("ok")
                     
                     try:
                         # Wait for user confirmation message with a timeout of 120 seconds
