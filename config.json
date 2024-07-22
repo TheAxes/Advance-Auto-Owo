@@ -1,5 +1,5 @@
 {
-    "token": "enter you account token",
+    "token": "MTE4NzMxNDYWMTMXNTAYMDKXNA.GyHDyj.MxrpH0e11jLdD2pNiYEaqSNB56_SAfoOmffqw",
     "prefix": ">",
     "settings": {
       "channel_id": 47252635353636,
@@ -11,6 +11,6 @@
     },
     "avail_services": ["twocaptcha", "capsolver", "capmonster", "captchaai"],
     "captcha_service": "twocaptcha",
-    "cap_key": "cxxxxxxxxxxx",
+    "cap_key": "e79e5dd5ace22af907bdf9d9ee9f2d76",
     "webhook": "url of hook"
 }
