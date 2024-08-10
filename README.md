@@ -27,6 +27,8 @@ A Epic OwO Bot Selfbot, which can bypass ban by solving any captcha [ web or ima
   
   4. [CapMonster](https://captchaai.com/?from=80668)
   <br>
+  5. [Scrappey](https://scrappey.com)
+   <br>
 </details>
 
 ## Todo
