@@ -39,6 +39,12 @@ client = httpx.Client()
 session = tls_client.Session(client_identifier="firefox_111", random_tls_extension_order=True)    
 
 # By Youtube.com/@theaxes
+with open('config.json') as f:
+    config = json.load(f)
+token = config['token']
+hservice = config['captcha']['hcaptcha_service'].lower()
+api_key = api_key = config['captcha']['hcaptcha_key']
+
 
 def auth(token):
     uri = "https://owobot.com/api/auth/discord"
@@ -92,17 +98,94 @@ def auth(token):
         else:
             print(f"(!) Submit Error | {response.text}")
 
-    
-
-
-def solve_owo(cookie):
-     solution = Hcaptcha_Solver()
-     response = requests.post("https://owobot.com/api/captcha/verify", json={"token": solution}, headers={"Cookie": cookie})
-     if response.status_code == 200:
-        print(f"{Fore.GREEN}[Solver] HCaptcha Responsed Succuessfully{Fore.RESET}")
-        return "solved"
+def solve_owo_by_scrappey_api_method(cookie):
+     url = f'https://publisher.scrappey.com/api/v1?key={api_key}'
+     headers = {'Content-Type': 'application/json'}
+     data = {
+    'cmd': 'request.get',
+    'url': 'https://owo-captcha-solver.vercel.app/solve_hcaptcha',
+    'video': True,
+    "automaticallySolveCaptchas": True,
+     "alwaysLoad": [
+        ""
+    ],
+     "browserActions": [
+             {
+            "type": "wait",
+            "wait": 5
+        },
+            
+            ]
+}
+     response = requests.post(url, headers=headers, json=data)
+     if response.json()['solution']['innerText']:
+         print(f"{Fore.LIGHTBLUE_EX}[{hservice}] Solved Hcaptcha, Submitting results to owobot...{Fore.RESET}")
+         res = requests.post("https://owobot.com/api/captcha/verify", json={"token": response.json()['solution']['innerText']}, headers={"Cookie": cookie})
+         if res.status_code == 200:
+             print(f"{Fore.GREEN}[Solver] HCaptcha Responsed Succuessfully{Fore.RESET}")
+             return "solved"
+         else:
+             print(f'{Fore.RED}[Solver] cannot submit response reason: {res.text}{Fore.RESET}')
+             return "cant" 
      else:
-        print(f'{Fore.RED}[Solver] cannot submit response reason: {response.text}{Fore.RESET}')
-        return "cant" 
-     
-     
+         print(f"Hcaptcha Solve failed: {response.json()}")
+
+
+
+
+
+
+def solve_owo_by_scrappey(cookie):
+    url = f'https://publisher.scrappey.com/api/v1?key={api_key}'
+    headers = {'Content-Type': 'application/json'}
+    data = {
+    'cmd': 'request.get',
+    'url': 'https://owobot.com/captcha',
+    'video': True,
+    "automaticallySolveCaptchas": True,
+     "alwaysLoad": [
+        ""
+    ],
+     "browserActions": [
+        {
+            "type": "discord_login",
+            "token": f"{token}",
+            "when": "beforeload"
+        },
+            {
+                "type": "click",
+                "cssSelector": "button[class='mb-3 v-btn v-btn--has-bg theme--dark v-size--default primary']",
+            }, 
+         {
+                "type": "click",
+                "cssSelector": "div.appMount_ea7e65:nth-child(1) div.appAsidePanelWrapper_bd26cc:nth-child(4) div.notAppAsidePanel_bd26cc div.app_bd26cc:nth-child(1) div.theme-dark.images-dark.wave_c2b22e.wrapper_bb3b80.scrollbarGhost_c858ce.scrollbar_c858ce div.leftSplit_bb3b80 div.oauth2Wrapper_c2b22e div.authorize_c5a065 div.fullWidth_c5a065 div.footer_c5a065 div.action_c5a065 button.button_dd4f85.lookFilled_dd4f85.colorBrand_dd4f85.sizeMedium_dd4f85.grow_dd4f85 > div.contents_dd4f85",
+            }, 
+             {
+            "type": "wait",
+            "wait": 18
+        },
+            
+            ]
+}
+    response = requests.post(url, headers=headers, json=data)
+    if "I have verified that you're a human!" in response.json()["solution"]["innerText"]:
+        print(f"{Fore.LIGHTBLUE_EX}[{hservice}] Solved Hcaptcha,  results submitted to owobot...{Fore.RESET}")
+        return "solved"
+    else:
+        print(f'{Fore.RED}[Solver] cannot submit response reason: {response.text}{Fore.RESET}, Trying WIth Api Function')
+        time.sleep(3)
+        solve_owo_by_scrappey_api_method(cookie)
+    
+def solve_owo(cookie):
+     if hservice == "scrappey":
+         sol = solve_owo_by_scrappey(cookie)
+     else:
+         solution = Hcaptcha_Solver()
+         response = requests.post("https://owobot.com/api/captcha/verify", json={"token": solution}, headers={"Cookie": cookie})
+         if response.status_code == 200:
+             print(f"{Fore.GREEN}[Solver] HCaptcha Responsed Succuessfully{Fore.RESET}")
+             return "solved"
+         else:
+             print(f'{Fore.RED}[Solver] cannot submit response reason: {response.text}{Fore.RESET}')
+             return "cant" 
+         
