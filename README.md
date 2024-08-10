@@ -12,7 +12,8 @@ A Epic OwO Bot Selfbot, which can bypass ban by solving any captcha [ web or ima
 - [x] Auto CoinFlip
 - [x] Auto Use OwO Commands
 - [x] Auto Cookie
-- [x] Auto HuntBot 
+- [x] Auto HuntBot
+- [x] Multiple Channel Support With Custom Time
 - [x] Auto Captcha Solve ( uses captcha solvers )
 - [x] Webhook Notifier ( about captcha , funds,        dailies, huntbot)
 - [x] Logging [ OwOCash, Dailies, captcha solves,   
