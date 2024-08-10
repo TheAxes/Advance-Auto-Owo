@@ -3,18 +3,22 @@ from colorama import Fore
 from io import BytesIO
 import base64
 from twocaptcha import TwoCaptcha
-
+import urllib.parse
 with open('config.json') as f:
     config = json.load(f)
 
-service = config['captcha_service'].lower()
-api_key = config['cap_key']
+service = config['captcha']['hcaptcha_service'].lower()
+api_key = config['captcha']['hcaptcha_key']
+tservice = config['captcha']['TextToImage_service'].lower()
+tapi_key = config['captcha']['TextToImage_key']
+scrappey_key = config['captcha']['scrappey_key']
 website = "https://owobot.com"
 sitekey = "a6a1d5ce-612d-472d-8e37-7601408fbc09"
-if service not in config['avail_services']:
+if service not in config['captcha']['avail_services']:
     print(f"{Fore.RED}[Error]Invalid Captcha Solver Provider Provided Please Correct It.{Fore.RESET}")
 else:
-    print(f"Captcha Solver: {service}")
+    print(f"HCaptcha Solver: {service}")
+    print(f"TextToImage Solver: {tservice}")
 
 def to_base64(image_location, is_url=True):
     try:
@@ -124,12 +128,59 @@ def Hcaptcha_Solver():
     else:
         print(f"{Fore.RED}[Error] invalid Captcha Provider{Fore.RESET}")
             
-def ImageToTextSolver(image, length):
+
+def solve_image_by_scrappey(image, mode):
+    if mode == "huntbot":
+        keytouse = scrappey_key
+    else:
+        keytouse = tapi_key
+    encoded_url =  urllib.parse.quote(image)
+    url = f'https://publisher.scrappey.com/api/v1?key={keytouse}'
+    headers = {'Content-Type': 'application/json'}
+    data = {
+    "cmd": "request.get",
+    "url": f"https://owo-captcha-solver.vercel.app/captcha_solution?url={encoded_url}",
+    "alwaysLoad": [
+        ""
+    ],
+    "browserActions": [
+        {
+            "type": "wait",
+            "wait": 3
+        },
+        {
+            "type": "solve_captcha",
+            "captcha": "custom",
+            "cssSelector": "img[class='captcha-image']",
+            "inputSelector": "input[id='solution']",
+            "clickSelector": "button[class='button']"
+        },
+        {
+            "type": "wait",
+            "wait": 10
+        }
+
+    ]
+}
+    response = requests.post(url, headers=headers, json=data)
+    if response.status_code == 200:
+        try:
+            print(f"{Fore.LIGHTBLUE_EX}[{service}] Solved ImageToText, Submitting results to owobot...{Fore.RESET}")
+            return response.json()["solution"]["innerText"]
+        except:
+            print("Solve failed! response:", response.text)
+            return
+    else:
+        print("Solve failed! response:", response.text)
+        return
+        
+
+def ImageToTextSolver(image, length, mode):
     if service == "capsolver":
         base64Image = to_base64(image_location=image, is_url=True)
         res = requests.post("https://api.capsolver.com/createTask",
                             json={
-                                "clientKey": api_key,
+                                "clientKey": tapi_key,
                                 "appId": "5122588A-8581-4440-8044-15D010D2B23C",
                                 "task": {
                                     "type": "ImageToTextTask",
@@ -138,13 +189,13 @@ def ImageToTextSolver(image, length):
                                     })
         return res.json().get("solution", {}).get('text')
     elif service == "twocaptcha":
-        solver = TwoCaptcha(apiKey=api_key, softId=4663)
+        solver = TwoCaptcha(apiKey=tapi_key, softId=4663)
         result = solver.normal(image, numeric = 2, minLen = length, maxLen = length, phrase = 0, caseSensitive = 0, calc = 0, lang = "en")
         return result['code']
     elif service == "capmonster":
         base64Image = to_base64(image_location=image, is_url=True)
         payload = {
-            "clientKey": api_key,
+            "clientKey": tapi_key,
             "task": {
             "type": 'ImageToTextTask',
             "body": base64Image,
@@ -156,23 +207,86 @@ def ImageToTextSolver(image, length):
         if not task_id:
             print("Failed to create task:", res.text)
             return
-        print(f"{Fore.LIGHTBLUE_EX}[{service}] Got taskId: {task_id} / Getting result...{Fore.RESET}")
+        print(f"{Fore.LIGHTBLUE_EX}[{tservice}] Got taskId: {task_id} / Getting result...{Fore.RESET}")
         while True:
             time.sleep(1)
-            payload = {"clientKey": api_key, "taskId": task_id}
+            payload = {"clientKey": tapi_key, "taskId": task_id}
             res = requests.post("https://api.capmonster.cloud/getTaskResult", json=payload)
             resp = res.json()
             status = resp.get("status")
             if status == "ready":
-                print(f"{Fore.LIGHTBLUE_EX}[{service}] Solved ImageToText, Submitting results to owobot...{Fore.RESET}")
+                print(f"{Fore.LIGHTBLUE_EX}[{tservice}] Solved ImageToText, Submitting results to owobot...{Fore.RESET}")
                 return resp.get("solution", {}).get('text')
             if status == "failed" or resp.get("errorId"):
                 print("Solve failed! response:", res.text)
                 return
     elif service == "captchaai":
         base64Image = to_base64(image_location=image, is_url=True)
-        res = requests.post(f"https://ocr.captchaai.com/solve.php?key={api_key}&method=base64&body={base64Image}")
+        res = requests.post(f"https://ocr.captchaai.com/solve.php?key={tapi_key}&method=base64&body={base64Image}")
         return res.text 
-	
+    elif service == "scrappey":
+        sol = solve_image_by_scrappey(image, mode=mode)
+        return sol
 
+
+def fetch_hcaptcha_balance():
+    '''
+    HCAPTCHA BALANCE
+    '''
+    if service == 'capsolver':
+        r =  requests.post(f"https://api.capsolver.com/getBalance", json={
+            "clientKey": api_key
+            })
+        return r.json()['balance']
+    elif service == "twocaptcha":
+        r =  requests.post(f"https://api.2captcha.com/getBalance", json={
+            "clientKey": api_key
+            })
+        return r.json()['balance']
+    elif service == "capmonster":
+         r =  requests.post(f"https://api.capmonster.cloud/getBalance", json={
+            "clientKey": api_key
+            })
+         return r.json()['balance']
+    elif service == "captchaai":
+         r =  requests.post(f"https://ocr.captchaai.com/res.php?key={api_key}&action=getbalance")
+         return r.text
+    elif service == 'scrappey':
+        r =  requests.get(f"https://publisher.scrappey.com/api/v1/balance?key={api_key}")
+        return r.json()['balance']
+    
+    
+
+def fetch_texttoimage_balance():
+    '''
+    TExtToImage'''
+
+    if tservice == 'capsolver':
+        r =  requests.post(f"https://api.capsolver.com/getBalance", json={
+            "clientKey": tapi_key
+            })
+        return r.json()['balance']
+    elif tservice == "twocaptcha":
+        r =  requests.post(f"https://api.2captcha.com/getBalance", json={
+            "clientKey": tapi_key
+            })
+        return r.json()['balance']
+    elif tservice == "capmonster":
+         r =  requests.post(f"https://api.capmonster.cloud/getBalance", json={
+            "clientKey": tapi_key
+            })
+         return r.json()['balance']
+    elif tservice == "captchaai":
+         r =  requests.post(f"https://ocr.captchaai.com/res.php?key={tapi_key}&action=getbalance")
+         return r.text
+    elif tservice == 'scrappey':
+        r =  requests.get(f"https://publisher.scrappey.com/api/v1/balance?key={tapi_key}")
+        return r.json()['balance']
+
+
+def scrappey_balance():
+    '''scrappey'''
+    if scrappey_key:
+        r =  requests.get(f"https://publisher.scrappey.com/api/v1/balance?key={scrappey_key}")
+        return r.json()['balance']
 
