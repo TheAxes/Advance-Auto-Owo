@@ -1,16 +1,39 @@
 {
-    "token": "enter you account token",
-    "prefix": ">",
-    "settings": {
-      "channel_id": 47252635353636,
-      "autosell": "true",
+  "token": "enter account token",
+  "prefix": ">",
+  "settings": {
+    "channel_ids":[
+      1253727886800588820,
+      1270754511362850817
+    ],
+      "channel_change_interval": [5, 15],
       "animal_types": "all",
-      "autolevelup": "true",
-      "autoslot": "true",
-      "slotamount": ["100", "500", "200"]
+      "slotamount": ["100", "500", "200"],
+      "autocoinflip_amount": ["100", "500", "200"],
+      "random_commands": ["zoo", "ping", "pic animal_cat", "xp"]
     },
-    "avail_services": ["twocaptcha", "capsolver", "capmonster", "captchaai"],
-    "captcha_service": "twocaptcha",
-    "cap_key": "cxxxxxxxxxxx",
-    "webhook": "url of hook"
+  "plugins": {
+    "autosell": "true",
+    "autolevelup": "true",
+    "autoslot": "true",
+    "autocoinflip": "true",
+    "autohunt": "true",
+    "autohuntbot": "true",
+    "autopray": "true",
+    "use_random_commands": "true"
+  },
+  "captcha": {
+    "avail_services": ["twocaptcha", "capsolver", "capmonster", "captchaai", "scrappey"],
+    "hcaptcha_service": "scrappey",
+    "hcaptcha_key": "hservice api key",
+    "TextToImage_service": "scrappey",
+    "TextToImage_key": "TextToImage service api key",
+    "scrappey_key": "scrappey key (its must for huntbot for now atleast )"
+  },
+"notifications": {
+  "captcha_alerts": "webhook_url",
+  "daily_claim_alerts": "webhook_url",
+  "huntbot_alert": "webhook_url",
+  "funds_alerts": "webhook_url"
+}
 }
