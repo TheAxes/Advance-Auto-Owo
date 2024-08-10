@@ -9,9 +9,14 @@ A Epic OwO Bot Selfbot, which can bypass ban by solving any captcha [ web or ima
 - [x] Auto Daily
 - [x] Auto Sell
 - [x] Auto Slot
+- [x] Auto CoinFlip
+- [x] Auto Use OwO Commands
+- [x] Auto Cookie
+- [x] Auto HuntBot 
 - [x] Auto Captcha Solve ( uses captcha solvers )
-- [x] Webhook Notifier ( about captcha )
-- [x] Logging [ OwOCash, Dailies Etc.]
+- [x] Webhook Notifier ( about captcha , funds,        dailies, huntbot)
+- [x] Logging [ OwOCash, Dailies, captcha solves,   
+  webhooks Etc]
 <details>
   <summary>Captcha Solvers</summary>
 
@@ -27,6 +32,7 @@ A Epic OwO Bot Selfbot, which can bypass ban by solving any captcha [ web or ima
   
   4. [CapMonster](https://captchaai.com/?from=80668)
   <br>
+  
   5. [Scrappey](https://scrappey.com)
    <br>
 </details>
@@ -34,7 +40,6 @@ A Epic OwO Bot Selfbot, which can bypass ban by solving any captcha [ web or ima
 ## Todo
 - [ ] Auto Use Gems
 - [ ] AutoLootboxes
-- [ ] Auto level up huntbot
 ## Recommendation
 - [x] Host Privately ( as it has token stored in json file on public host anyone can access it )
 - [x] Run In A Alt Account ( as sb against discord tos )
@@ -71,6 +76,8 @@ python main.py
 ```
 ### Video Tutorial
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/CvS5U7pufRg/0.jpg)](https://www.youtube.com/watch?v=CvS5U7pufRg)
+
+[guns.lol](https://guns.lol/TheAxes)
 
 
 Consider Donating Me For Appreciation
