@@ -1,4 +1,4 @@
-# Skids Go Away Else I'll kidnap your basements kids
+ # Skids Go Away Else I'll kidnap your basements kids
 
 
 
@@ -28,12 +28,13 @@ from datetime import timedelta
 from io import BytesIO
 import base64
 from solver import auth, solve_owo
-from captcha_solver import ImageToTextSolver, solve_image_by_scrappey, fetch_hcaptcha_balance, fetch_texttoimage_balance, scrappey_balance
+from captcha_solver import ImageToTextSolver, solve_image_by_scrappey, fetch_hcaptcha_balance, fetch_texttoimage_balance
 from colorama import Fore
+import sys
 sentences = RandomSentence()
 
 
-version = "1.2" # Logic * 69999999999999999
+version = "1.3" # Logic * 69999999999999999
 
 def clear():
     os.system("title Advanced Auto OwO && cls" if os.name == "nt" else "clear")
@@ -44,16 +45,19 @@ with open("config.json") as f:
 try:
     prefix = config.get("prefix")
     token = config.get("token")
+    owodm = config['settings']['owodm_channelid']
     captcha_hook_url = config["notifications"]["captcha_alerts"]
     daily_hook_url = config["notifications"]["daily_claim_alerts"]
     huntbot_hook_url = config["notifications"]["huntbot_alert"]
     funds_hook_url = config["notifications"]["funds_alerts"]
+    huntbot_key = config["captcha"]["huntbot_key"]
     
 except:
     print("no token found")
 owochannels = config["settings"]["channel_ids"]
 change_channel_after = config["settings"]["channel_change_interval"]
 owochannel = 0
+
 
 
     
@@ -227,7 +231,10 @@ async def on_connect():
     print("please wait, bot loading")
     create_tasks()
     cook = auth(token)
-    update_entry(new_cookie=cook)
+    if cook is None:
+        return
+    else:
+        update_entry(new_cookie=cook)
     clear()
     print(f"{Fore.LIGHTCYAN_EX}{banner}{Fore.RESET}")
     print(f"Account : {globalname}")
@@ -250,87 +257,66 @@ async def on_message(message):
     await client.process_commands(message)
     if message.author.bot:
         if message.author.id == 408785106942164992:
-            # Check for cowoncy update message
-            if "cowoncy" in message.content and not "sent" in message.content:
-                pattern = r"\| {}\*\*, you currently have \*\*__([\d,]+)__ cowoncy!".format(
-                    re.escape(globalname)
-                )
-                match = re.search(pattern, message.content)
-                if match:
-                    cowoncy_amount = match.group(1).replace(",", "")
-                    print(
-                        f"{Fore.LIGHTYELLOW_EX}[Logger] You Have {cowoncy_amount} Cowoncy{Fore.RESET}"
-                    )
-                    update_entry(new_cowoncy=cowoncy_amount)
-                return
-            else:
                 # Check for captcha detection message
-                if ("⚠️" in message.content) and (
-                    ("letter word" in message.content)
+                if message.channel.id in owochannels or message.channel.id == owodm:
+                    if ("⚠️" in message.content) and (("letter word" in message.content)
                     or ("https://owobot.com/captcha" in message.content)
                 ):
-                    # Stop various tasks
-                    for task in all_tasks_stop:
-                        task.cancel()
-                    # Retrieve captcha details
-                    captchamsg = message.jump_url
-                    try:
-                        captcha = message.attachments[0].url
-                    except:
-                        captcha = "https://owobot.com/captcha"
-                    # Send notification using webhook
-                    sendhook(hook_url=captcha_hook_url,
+                        for task in all_tasks_stop:
+                            task.cancel()
+                        captchamsg = message.jump_url
+                        try:
+                            captcha = message.attachments[0].url
+                        except:
+                            captcha = "https://owobot.com/captcha"
+                        sendhook(hook_url=captcha_hook_url,
                         content=f"@everyone Captcha Alert!",
                         description=f"A Captcha Has Been Detected!\n*Captcha Message*: [Jump to Message]({captchamsg})", image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448")
-                    # Solve captcha
-                    if "letter word" in message.content:
-                        solution = solvecap(
+                        if "letter word" in message.content:
+                            solution = solvecap(
                             captcha, lambaa=message.content[message.content.find("letter word") - 2]
                         )
-                    else:
-                        solution = solvecap(captcha, lambaa=None)
-                    user = client.get_user(408785106942164992)
-                    # Send the solution to the channel
-                    if solution.split("|")[1] == "image":
-                        await user.send(solution.split("|")[0])
-                    elif solution.split("|")[1] == "hcap":
-                        await user.send("ok")
-                    try:
-                        # Wait for user confirmation message with a timeout of 120 seconds
-                        verification_message = await asyncio.wait_for(
-                            client.wait_for(
-                                "message",
-                                check=lambda m: m.author == message.author
-                                and "I have verified that you are human! Thank you! :3"
-                                in m.content,
-                            ),
-                            timeout=220,
-                        )
-
-                        # Check if the user's message indicates correct verification
-                        if "I have verified" in verification_message.content:
-                            # Start tasks again
-                            channel = client.get_channel(owochannel)
-                            sendhook(hook_url=captcha_hook_url,
-                                content=f"@everyone Captcha Alert!",
-                                description=f"Captcha Has Been Solved!", image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448")
-                            await channel.send(f"{prefix}autoowo")
                         else:
-                            sendhook(hook_url=captcha_hook_url, image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448"
-                                ,content=f"@everyone Captcha Alert!",
-                                description=f"A Captcha Cant Be Solved, Bot Has Been Stopped!",
-                            )
-                            await client.close()
-                    except asyncio.TimeoutError:
-                        print(f"{Fore.RED}[Timeout] captcha timed out.{Fore.RESET}")
-                        sendhook(hook_url=captcha_hook_url, image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448",
-                            content=f"@everyone Captcha Alert!",
-                            description=f"A Captcha Cant Be Solved, Bot Has Been Stopped!, Reason: Captcha Took Too Long Too Solve",
-                        )
-                        await client.close()
-                    # Close the bot client after verification
-                if "nu" or "your next" or "your daily" in message.content.lower():
-                    if message.author.id == 408785106942164992:
+                            print(f"{Fore.GREEN}Solving Hcaptcha{Fore.RESET}")
+                            solution = solvecap(captcha, lambaa=None)
+                        user = client.get_user(408785106942164992)
+                        if solution.split("|")[1] == "image":
+                                await user.send(solution.split("|")[0])
+                        elif solution.split("|")[1] == "hcap":
+                            await user.send("ok")
+                        try:
+                                verification_message = await asyncio.wait_for(
+                                    client.wait_for(
+                                        "message",
+                                        check=lambda m: m.author == message.author
+                                        and "I have verified that you are human! Thank you! :3"
+                                        in m.content
+                                        ),
+                                        timeout=240,
+                                        )
+                                print(verification_message.content)
+                                if "I have verified" in verification_message.content:
+                                    channel = client.get_channel(owochannel)
+                                    sendhook(hook_url=captcha_hook_url,
+                                             content=f"@everyone Captcha Alert!",
+                                             description=f"Captcha Has Been Solved!", image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448")
+                                    await channel.send(f"{prefix}autoowo")
+                                else:
+                                    sendhook(hook_url=captcha_hook_url, image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448"
+                                             ,content=f"@everyone Captcha Alert!",
+                                             description=f"A Captcha Cant Be Solved, Bot Has Been Stopped!",
+                                             )
+                                    time.sleep(4)
+                                    sys.exit()
+                        except asyncio.TimeoutError:
+                                print(f"{Fore.RED}[Timeout] captcha timed out.{Fore.RESET}")
+                                sendhook(hook_url=captcha_hook_url, image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448",
+                                         content=f"@everyone Captcha Alert!",description=f"A Captcha Cant Be Solved, Bot Has Been Stopped!, Reason: Captcha Took Too Long Too Solve",
+                                         )
+                                time.sleep(5)
+                                sys.exit()
+                    
+                    elif "nu" or "your next" or "your daily" in message.content.lower():
                         if globalname in message.content:
                             target_message = message
                             if "nu" in target_message.content.lower():
@@ -346,10 +332,10 @@ async def on_message(message):
                                     f"{Fore.LIGHTYELLOW_EX}[Logger] Your Next Daily: {str(timedelta(seconds=total_seconds))}s{Fore.RESET}"
                                 )
                             else:
-                                if ":cowoncy:" in target_message.content:
-                                    print(
-                                        f"{Fore.LIGHTYELLOW_EX}[Logger] Daily Has Been Claimed{Fore.RESET}"
-                                    )
+                                return
+                else:
+                    return 
+                
 def change_channel():
     global owochannel
     new_owochannel = random.choice(owochannels)
@@ -357,13 +343,13 @@ def change_channel():
     owochannel = new_owochannel
     print(f"{Fore.YELLOW}[Logger] Set OwO Channel To #{after.name}")
 
-@tasks.loop(seconds=random.randrange(18, 30))
+@tasks.loop(seconds=random.randrange(20, 45))
 async def autohunter():
     channel = client.get_channel(owochannel)
     await channel.trigger_typing()
-    await asyncio.sleep(3)
+    await asyncio.sleep(2)
     await channel.send("owo hunt")
-    await asyncio.sleep(9)
+    await asyncio.sleep(15)
     await channel.send("owo battle")
 
 
@@ -375,7 +361,7 @@ async def autopray():
     await channel.send("owo pray")
 
 
-@tasks.loop(seconds=random.randrange(15, 60))
+@tasks.loop(seconds=random.randrange(20, 60))
 async def autolevelup():
     channel = client.get_channel(owochannel)
     await channel.trigger_typing()
@@ -386,7 +372,7 @@ async def autolevelup():
     await asyncio.sleep(3)
 
 
-@tasks.loop(minutes=3)
+@tasks.loop(minutes=5)
 async def autodaily():
     channel = client.get_channel(owochannel)
     if not get_entry()[1] - time.time() <= 0:
@@ -407,14 +393,14 @@ async def autodaily():
     await channel.send("owo cookie <@408785106942164992>")
 
 
-@tasks.loop(minutes=2)
+@tasks.loop(minutes=10)
 async def autosell():
     channel = client.get_channel(owochannel)
     await asyncio.sleep(13)
     await channel.send(f"owo sell {config['settings']['animal_types']}")
 
 
-@tasks.loop(minutes=4)
+@tasks.loop(minutes=8)
 async def autoslot():
     await asyncio.sleep(30)
     channel = client.get_channel(owochannel)
@@ -428,30 +414,55 @@ async def autocf():
     await channel.send(f"owo cf {amount}")
 
 
-@tasks.loop(minutes=5)
+@tasks.loop(minutes=15)
 async def owobalace():
     channel = client.get_channel(owochannel)
     await asyncio.sleep(5)
     await channel.send(f"owo cash")
+    balance_message = await asyncio.wait_for(
+                            client.wait_for(
+                                "message",
+                                check=lambda m: "cowoncy" 
+                                in m.content,
+                            ),
+                            timeout=60,
+                        )
+    if "cowoncy" in balance_message.content and not "sent" in balance_message.content:
+                pattern = r"\| {}\*\*, you currently have \*\*__([\d,]+)__ cowoncy!".format(
+                    re.escape(globalname)
+                )
+                match = re.search(pattern, balance_message.content)
+                if match:
+                    cowoncy_amount = match.group(1).replace(",", "")
+                    print(
+                        f"{Fore.LIGHTYELLOW_EX}[Logger] You Have {cowoncy_amount} Cowoncy{Fore.RESET}"
+                    )
+                    update_entry(new_cowoncy=cowoncy_amount)
+                return
+            
 
 
 @tasks.loop(minutes=random.randrange(15, 20))
 async def autosleep():
-    await asyncio.sleep(random.randrange(180, 360))
-    print(f"{Fore.LIGHTGREEN_EX}[Sleeper] Bot Sleeping{Fore.RESET}")
+    tosleep =random.randrange(3, 8)
+    print(f"{Fore.LIGHTGREEN_EX}[Sleeper] Bot Sleeping for {tosleep} Minutes{Fore.RESET}")
     all_tasks_stop.remove(autosleep)
+    if config['plugins']["autohuntbot"] == "true":
+        all_tasks_stop.remove(autohuntbot)
     try:
         for task in all_tasks_stop:
             task.cancel()
     except RuntimeError:
         return
-    await asyncio.sleep(random.randrange(180, 360))
+    await asyncio.sleep(tosleep*60)
     all_tasks_stop.append(autosleep)
+    if config['plugins']["autohuntbot"] == "true":
+        all_tasks_stop.append(autohuntbot) 
     print(f"{Fore.LIGHTGREEN_EX}[Sleeper] Bot Again Resumed{Fore.RESET}")
     try:
         for task in all_tasks:
             task.start()
-            await asyncio.sleep(3)
+            await asyncio.sleep(5)
     except RuntimeError:
         return
     
@@ -463,7 +474,7 @@ def extract_amount(text):
     else:
         return None
     
-@tasks.loop(minutes=5)
+@tasks.loop(minutes=6)
 async def autohuntbot():
     channel = client.get_channel(owochannel)
     if not get_entry()[3] - time.time() <= 0:
@@ -482,7 +493,7 @@ async def autohuntbot():
                             timeout=60,
                         )
         if amount_message.attachments[0].url:
-            password = solve_image_by_scrappey(amount_message.attachments[0].url, mode="huntbot")
+            password = requests.post("https://huntbot-api.vercel.app/process_image", json={"image_url": amount_message.attachments[0].url , "api_key": huntbot_key}).json()['result']
             amount = extract_amount(amount_message.content)
             await channel.send(f"owo autohunt {amount} {password} ")
             huntbot_msg = await asyncio.wait_for(
@@ -499,6 +510,10 @@ async def autohuntbot():
             sendhook(hook_url=huntbot_hook_url, content="HuntBot Alert!!", description=f"Huntbot Started!!\n[Jump to Message]({huntbot_msg.jump_url})", image_url="https://images-ext-1.discordapp.net/external/r-T0CN-zkuhykmnsWyy6gRSkZyAb-mm7EDeH-lUi_w8/https/cdn.discordapp.com/emojis/459996048379609098.png?format=webp&quality=lossless&width=160&height=160")
             update_entry(new_nexthuntbot=time.time() + seconds)
             await asyncio.sleep(seconds) 
+        else:
+            await asyncio.sleep(180) 
+
+
 
 @tasks.loop(seconds=random.randrange(60, 120))
 async def autorandomcommand():
@@ -512,15 +527,10 @@ async def autorandomcommand():
 async def balanace_alerts():
     hbal = fetch_hcaptcha_balance()
     txtbal = fetch_texttoimage_balance()
-    scrappeybal = scrappey_balance()
-    if hbal or txtbal < 0:
-        sendhook(description="Keys Ran Out Of Funds Please Refill ANd then Restart Bo", hook_url=funds_hook_url, content="@everyone Bot Stopped!!", image_url="https://media.discordapp.net/attachments/1251479335647576169/1271412600915230720/Money-Bag-Transparent-PNG.png?ex=66b73ec1&is=66b5ed41&hm=33fadea61e4229b908c3e5c0a3423bf48318f1a5e111f93245618141ae5ce607&=&format=webp&quality=lossless&width=437&height=437")
-        os.system("exit")
-    elif scrappeybal < 0:
-        sendhook(description="Scrappey Funds Ran Out, Pls Refill And restart to enable huntbot", hook_url=funds_hook_url, content="@everyone huntbot Stopped!!", image_url="https://media.discordapp.net/attachments/1251479335647576169/1271412600915230720/Money-Bag-Transparent-PNG.png?ex=66b73ec1&is=66b5ed41&hm=33fadea61e4229b908c3e5c0a3423bf48318f1a5e111f93245618141ae5ce607&=&format=webp&quality=lossless&width=437&height=437")
-        all_tasks.remove(autohuntbot)
-        all_tasks_stop.remove(autohuntbot)
-        autohuntbot.cancel()
+   
+    if hbal and txtbal < 0:
+        sendhook(description="Keys Ran Out Of Funds Please Refill ANd then Restart Bot", hook_url=funds_hook_url, content="@everyone Bot Stopped!!", image_url="https://media.discordapp.net/attachments/1251479335647576169/1271412600915230720/Money-Bag-Transparent-PNG.png?ex=66b73ec1&is=66b5ed41&hm=33fadea61e4229b908c3e5c0a3423bf48318f1a5e111f93245618141ae5ce607&=&format=webp&quality=lossless&width=437&height=437")
+        sys.exit()
     else:
         return
 
@@ -531,7 +541,20 @@ async def auto_channelchange():
 
 @client.command()
 async def help(ctx):
-    await ctx.send(f"> {prefix}autoowo\n> {prefix}stopautoowo")
+    msg = f'''
+    ```ini
+    [Made By @TheAxes]
+      [Help Command]
+⁙ {prefix}autoowo - Starts Farming OwO Automatically
+⁙ {prefix}stopautoowo - stops Farming OwO
+⁙ {prefix}chhservicekey (new key) - changes hcaptcha service key
+⁙ {prefix}chtexttoimagekey (new key) - changes texttoimage service key
+⁙ {prefix}balance - returns each service balances
+⁙ {prefix}info - returns the instance info along other details
+```
+        [Github.com/TheAxes]
+'''
+    await ctx.send(f"{msg}")
 
 
 @client.command()
@@ -541,7 +564,7 @@ async def autoowo(ctx):
     try:
         for task in all_tasks:
             task.start()
-            await asyncio.sleep(3)
+            await asyncio.sleep(15)
     except RuntimeError:
         return
 
@@ -554,6 +577,94 @@ async def stopautoowo(ctx):
             task.cancel()
     except RuntimeError:
         return
+    
+def update_json(file_path, key_path, new_value):
+    # Read the original file content
+    with open(file_path, 'r') as file:
+        original_content = file.read()
+    
+    # Parse the JSON data from the content
+    data = json.loads(original_content)
+    
+    # Traverse the JSON object to update the specific value
+    keys = key_path.split('.')
+    temp_data = data
+    for key in keys[:-1]:
+        temp_data = temp_data[key]
+    temp_data[keys[-1]] = new_value
+    
+    # Convert the updated JSON data to a formatted string
+    updated_json_str = json.dumps(data, indent=2)
+    
+    # Use regex to replace the old value with the new value while keeping the original formatting intact
+    def replace_value(match):
+        return f'"{key_path}": "{new_value}"'
+    
+    # Find the value to replace in the original content
+    pattern = re.compile(rf'"{key_path}":\s*".*?"')
+    formatted_content = pattern.sub(replace_value, original_content)
 
+    # Write the formatted content back to the file
+    with open(file_path, 'w') as file:
+        file.write(formatted_content)
+
+@client.command()
+async def chhservicekey(ctx, key=None):
+    if key is None:
+        await ctx.reply("`providing a hcaptcha_key key is must`")
+    else:
+        file_path = 'config.json'
+        update_json(file_path=file_path, key_path='captcha.hcaptcha_key', new_value=key)
+        await ctx.message.delete()
+        await ctx.send("`Updated hcaptcha_key Key Successfully`")
+
+@client.command()
+async def chtexttoimagekey(ctx, key=None):
+    if key is None:
+        await ctx.reply("`providing a TextToImage_key key is must`")
+    else:
+        file_path = 'config.json'
+        update_json(file_path=file_path, key_path='captcha.TextToImage_key', new_value=key)
+        await ctx.message.delete()
+        await ctx.send("`Updated TextToImage_key Key Successfully`")
+
+@client.command()
+async def balance(ctx):
+    message = await ctx.send('`Fetching balance...`')
+    hbal = fetch_hcaptcha_balance()
+    txtbal = fetch_texttoimage_balance()
+    msg = f'''
+```ini
+    [Balance]
+
+  Hcaptcha Balance: "{hbal}"    
+  TextToImage Balance: "{txtbal}"   
+```
+'''
+    await message.edit(content=msg)
+
+@client.command()
+async def info(ctx):
+    message = await ctx.reply("`fetching details...`")
+    ping = client.latency * 1000
+    r = requests.get(
+        "https://raw.githubusercontent.com/TheAxes/Advance-Auto-Owo/main/Current-version.txt"
+    )
+    ver = r.text.rstrip()
+    msg = f'''```ini
+    [ Adv Auto OwO | Information ]
+
+User: "{globalname}"
+Latency: "{ping}ms"
+Version: "{ver}"
+Hservice: "{config['captcha']['hcaptcha_service']}"
+TextToImage Service: "{config['captcha']['TextToImage_service']}"
+Current OwO Channel: "{owochannel}"
+OwO Dm Channel: "{owodm}"
+Src: "https://github.com/TheAxes/Advance-Auto-Owo.git"
+Dev: "https://guns.lol/theaxes"
+```
+'''
+    await message.edit(content=msg)
 
 client.run(token)
