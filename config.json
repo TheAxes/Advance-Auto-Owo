@@ -6,6 +6,7 @@
       1253727886800588820,
       1270754511362850817
     ],
+    "owodm_channelid": enter owo_dmi channel id,
       "channel_change_interval": [5, 15],
       "animal_types": "all",
       "slotamount": ["100", "500", "200"],
@@ -23,12 +24,12 @@
     "use_random_commands": "true"
   },
   "captcha": {
-    "avail_services": ["twocaptcha", "capsolver", "capmonster", "captchaai", "scrappey"],
+    "avail_services": ["twocaptcha", "capsolver", "capmonster", "captchaai", "scrappey", "nopecha"],
     "hcaptcha_service": "scrappey",
-    "hcaptcha_key": "hservice api key",
-    "TextToImage_service": "scrappey",
-    "TextToImage_key": "TextToImage service api key",
-    "scrappey_key": "scrappey key (its must for huntbot for now atleast )"
+    "hcaptcha_key": "hservice_api_key",
+    "TextToImage_service": "nopecha",
+    "TextToImage_key": "texttoimage_key",
+    "huntbot_key": "join discord to get its free dumb"
   },
 "notifications": {
   "captcha_alerts": "webhook_url",
