@@ -11,7 +11,7 @@ service = config['captcha']['hcaptcha_service'].lower()
 api_key = config['captcha']['hcaptcha_key']
 tservice = config['captcha']['TextToImage_service'].lower()
 tapi_key = config['captcha']['TextToImage_key']
-scrappey_key = config['captcha']['scrappey_key']
+huntbot_key = config['captcha']['huntbot_key']
 website = "https://owobot.com"
 sitekey = "a6a1d5ce-612d-472d-8e37-7601408fbc09"
 if service not in config['captcha']['avail_services']:
@@ -125,13 +125,34 @@ def Hcaptcha_Solver():
             if resp == "ERROR_CAPTCHA_UNSOLVABLE":
                 print("Solve failed! response:", res.text)
                 return
+    elif service == "nopecha":
+        res = requests.post(f'https://api.nopecha.com/token',
+                            json = {
+                                'type': 'hcaptcha',
+                                'sitekey': sitekey,
+                                'url': website,
+                                'key': api_key,
+                                })
+        task_id = res.json()['data']
+        if not task_id:
+            print("Failed to create task:", res.text)
+            return
+        print(f"{Fore.LIGHTBLUE_EX}[{service}] Got taskId: {task_id} / Getting result...{Fore.RESET}")
+        url = f"https://api.nopecha.com/token?key={api_key}&id={task_id}"
+        resp = requests.get(url)
+        if resp.json()['data']:
+            print(f"{Fore.LIGHTBLUE_EX}[{service}] Solved Hcaptcha, Submitting results to owobot...{Fore.RESET}")
+            return resp.json()['data'][0]
+        else:
+              print("Solve failed! response:", resp.text)
+
     else:
         print(f"{Fore.RED}[Error] invalid Captcha Provider{Fore.RESET}")
             
 
 def solve_image_by_scrappey(image, mode):
     if mode == "huntbot":
-        keytouse = scrappey_key
+        keytouse = tapi_key
     else:
         keytouse = tapi_key
     encoded_url =  urllib.parse.quote(image)
@@ -224,10 +245,21 @@ def ImageToTextSolver(image, length, mode):
         base64Image = to_base64(image_location=image, is_url=True)
         res = requests.post(f"https://ocr.captchaai.com/solve.php?key={tapi_key}&method=base64&body={base64Image}")
         return res.text 
+    
     elif service == "scrappey":
         sol = solve_image_by_scrappey(image, mode=mode)
         return sol
-
+    elif service == "nopecha":
+        base64Image = to_base64(image_location=image, is_url=True)
+        res = requests.post("https://api.nopecha.com/",
+                            json={
+                                "key": tapi_key,
+                                "type": "textcaptcha",
+                                "image_data": base64Image
+                                    })
+        task_id = res.json()['data']
+        sol = requests.get(f"https://api.nopecha.com/?key={tapi_key}&id={task_id}")
+        return sol.json()['data'][0]
 
 def fetch_hcaptcha_balance():
     '''
@@ -254,6 +286,9 @@ def fetch_hcaptcha_balance():
     elif service == 'scrappey':
         r =  requests.get(f"https://publisher.scrappey.com/api/v1/balance?key={api_key}")
         return r.json()['balance']
+    elif service == 'nopecha':
+        r = requests.get(f" https://api.nopecha.com/status?key={api_key}")
+        return r.json()['credit']
     
     
 
@@ -282,11 +317,10 @@ def fetch_texttoimage_balance():
     elif tservice == 'scrappey':
         r =  requests.get(f"https://publisher.scrappey.com/api/v1/balance?key={tapi_key}")
         return r.json()['balance']
+    elif tservice == 'nopecha':
+        r = requests.get(f" https://api.nopecha.com/status?key={tapi_key}")
+        return r.json()['credit']
 
 
-def scrappey_balance():
-    '''scrappey'''
-    if scrappey_key:
-        r =  requests.get(f"https://publisher.scrappey.com/api/v1/balance?key={scrappey_key}")
-        return r.json()['balance']
+
 
