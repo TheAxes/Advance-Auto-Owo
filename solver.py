@@ -85,9 +85,11 @@ def auth(token):
                 "referer": "https://discord.com/","sec-fetch-dest": "document","sec-fetch-mode": "navigate","sec-fetch-site": "cross-site","sec-fetch-user": "?1", "upgrade-insecure-requests": "1","user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0"
             }
             res2 = client.get(locauri, headers=headers)
-            print(res2.headers['Set-Cookie'])
-            cook = res2.headers['Set-Cookie'].split(";")[0]
             if res2.status_code in (302, 307):
+                try:
+                    cook = res2.headers['Set-Cookie'].split(";")[0]
+                except:
+                    cook = None
                 cookie = f"_ga=GA1.2.509834688.1718790840; _gid=GA1.2.1642127289.1718790840;{cook};"
                 print("retrived cookie for solver")
                 return cookie
@@ -129,6 +131,7 @@ def solve_owo_by_scrappey_api_method(cookie):
              return "cant" 
      else:
          print(f"Hcaptcha Solve failed: {response.json()}")
+         return "cant"
 
 
 
@@ -168,17 +171,23 @@ def solve_owo_by_scrappey(cookie):
             ]
 }
     response = requests.post(url, headers=headers, json=data)
-    if "I have verified that you're a human!" in response.json()["solution"]["innerText"]:
-        print(f"{Fore.LIGHTBLUE_EX}[{hservice}] Solved Hcaptcha,  results submitted to owobot...{Fore.RESET}")
-        return "solved"
-    else:
-        print(f'{Fore.RED}[Solver] cannot submit response reason: {response.text}{Fore.RESET}, Trying WIth Api Function')
-        time.sleep(3)
-        solve_owo_by_scrappey_api_method(cookie)
+    try:
+        if response.json()["solution"]["innerText"]:
+            if "I have verified that you're a human!" in response.json()["solution"]["innerText"]:
+                print(f"{Fore.LIGHTBLUE_EX}[{hservice}] Solved Hcaptcha,  results submitted to owobot...{Fore.RESET}")
+                return "solved"
+        else:
+            print(f'{Fore.RED}[Solver] cannot submit response reason: {response.text}{Fore.RESET}, Trying WIth Api Function')
+            time.sleep(3)
+            return solve_owo_by_scrappey_api_method(cookie)
+    except:
+        print(f'{Fore.RED}[Solver] cannot retrieve response reason: {response.text}{Fore.RESET}, Trying WIth Api Function')
+        return solve_owo_by_scrappey_api_method(cookie)
     
 def solve_owo(cookie):
      if hservice == "scrappey":
-         sol = solve_owo_by_scrappey(cookie)
+         sol = solve_owo_by_scrappey_api_method(cookie)
+         return sol
      else:
          solution = Hcaptcha_Solver()
          response = requests.post("https://owobot.com/api/captcha/verify", json={"token": solution}, headers={"Cookie": cookie})
@@ -189,3 +198,4 @@ def solve_owo(cookie):
              print(f'{Fore.RED}[Solver] cannot submit response reason: {response.text}{Fore.RESET}')
              return "cant" 
          
+
