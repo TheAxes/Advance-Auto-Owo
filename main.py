@@ -188,7 +188,7 @@ def update_entry(new_cowoncy=None, new_nextdaily=None, new_cookie=None, new_next
 
 
 def solvecap(problem, lambaa=None):
-    if problem == "https://owobot.com/captcha":
+    if problem == "https://owobot.com":
         cooked = get_entry()[2]
         sol = solve_owo(cooked)
         return f"{sol}|hcap"
@@ -260,7 +260,7 @@ async def on_message(message):
                 # Check for captcha detection message
                 if message.channel.id in owochannels or message.channel.id == owodm:
                     if ("⚠️" in message.content) and (("letter word" in message.content)
-                    or ("https://owobot.com/captcha" in message.content)
+                    or ("https://owobot.com" in message.content)
                 ):
                         for task in all_tasks_stop:
                             task.cancel()
