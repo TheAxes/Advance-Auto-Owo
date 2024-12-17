@@ -1,4 +1,4 @@
- # Skids Go Away Else I'll kidnap your basements kids
+# Skids Go Away Else I'll kidnap your basements kids
 
 
 
@@ -34,7 +34,7 @@ import sys
 sentences = RandomSentence()
 
 
-version = "1.3" # Logic * 69999999999999999
+version = "1.4" # Logic * 69999999999999999
 
 def clear():
     os.system("title Advanced Auto OwO && cls" if os.name == "nt" else "clear")
@@ -94,9 +94,9 @@ def create_tasks():
     global all_tasks_stop
     plugins = config["plugins"]
     try:
-        if plugins["autosell"] == "true":
-            all_tasks.append(autosell)
-            all_tasks_stop.append(autosell)
+        if plugins["autohunt"] == "true":
+            all_tasks.append(autohunter)
+            all_tasks_stop.append(autohunter)
         if plugins["autolevelup"] == "true":
             all_tasks.append(autolevelup)
             all_tasks_stop.append(autolevelup)
@@ -109,24 +109,25 @@ def create_tasks():
         if plugins["autopray"] == "true":
             all_tasks.append(autopray)
             all_tasks_stop.append(autopray)
+        if plugins["autosell"] == "true":
+            all_tasks.append(autosell)
+            all_tasks_stop.append(autosell)
         if plugins["use_random_commands"] == "true":
             all_tasks.append(autorandomcommand)
             all_tasks_stop.append(autorandomcommand)
         if plugins["autohuntbot"] == "true":
             all_tasks.append(autohuntbot)
             all_tasks_stop.append(autohuntbot)
-        
     except Exception as e:
         print(e)
     print("")
     try:
-        all_tasks.append(autohunter)
+       
         all_tasks.append(owobalace)
         all_tasks.append(autodaily)
         all_tasks.append(autosleep)
         all_tasks.append(auto_channelchange)
         all_tasks.append(balanace_alerts)
-        all_tasks_stop.append(autohunter)
         all_tasks_stop.append(autodaily)
         all_tasks_stop.append(owobalace)
         all_tasks_stop.append(autosleep)
@@ -188,7 +189,7 @@ def update_entry(new_cowoncy=None, new_nextdaily=None, new_cookie=None, new_next
 
 
 def solvecap(problem, lambaa=None):
-    if problem == "https://owobot.com":
+    if problem == "https://owobot.com/captcha":
         cooked = get_entry()[2]
         sol = solve_owo(cooked)
         return f"{sol}|hcap"
@@ -251,16 +252,20 @@ async def on_connect():
         ),
     )
 
+def normalize_message(content):
+    # Remove zero-width characters or any unintended space splitting
+    return re.sub(r"\s+", " ", content.replace("\u200b", ""))
 
 @client.event
 async def on_message(message):
     await client.process_commands(message)
     if message.author.bot:
         if message.author.id == 408785106942164992:
-                # Check for captcha detection message
+                # Check for captcha detection messagetent 
+                message.content = normalize_message(message.content)
                 if message.channel.id in owochannels or message.channel.id == owodm:
                     if ("⚠️" in message.content) and (("letter word" in message.content)
-                    or ("https://owobot.com" in message.content)
+                    or ("link" in message.conten or "https://owobot.com" in message.content)
                 ):
                         for task in all_tasks_stop:
                             task.cancel()
@@ -343,7 +348,7 @@ def change_channel():
     owochannel = new_owochannel
     print(f"{Fore.YELLOW}[Logger] Set OwO Channel To #{after.name}")
 
-@tasks.loop(seconds=random.randrange(20, 45))
+@tasks.loop(seconds=random.randrange(16, 45))
 async def autohunter():
     channel = client.get_channel(owochannel)
     await channel.trigger_typing()
@@ -356,12 +361,12 @@ async def autohunter():
 @tasks.loop(minutes=random.randrange(5, 7))
 async def autopray():
     channel = client.get_channel(owochannel)
-    await asyncio.sleep(8)
+    await asyncio.sleep(15)
     await channel.trigger_typing()
     await channel.send("owo pray")
 
 
-@tasks.loop(seconds=random.randrange(20, 60))
+@tasks.loop(seconds=random.randrange(15, 60))
 async def autolevelup():
     channel = client.get_channel(owochannel)
     await channel.trigger_typing()
@@ -396,13 +401,12 @@ async def autodaily():
 @tasks.loop(minutes=10)
 async def autosell():
     channel = client.get_channel(owochannel)
-    await asyncio.sleep(13)
+    await asyncio.sleep(16)
     await channel.send(f"owo sell {config['settings']['animal_types']}")
 
 
 @tasks.loop(minutes=8)
 async def autoslot():
-    await asyncio.sleep(30)
     channel = client.get_channel(owochannel)
     amount = random.choice(config["settings"]["slotamount"])
     await channel.send(f"owo s {amount}")
@@ -480,7 +484,7 @@ async def autohuntbot():
     if not get_entry()[3] - time.time() <= 0:
         return
     else:
-        await asyncio.sleep(15)
+        await asyncio.sleep(3)
         await channel.send("owo autohunt")
         await asyncio.sleep(30)
         await channel.send("owo autohunt 1d")
@@ -515,7 +519,7 @@ async def autohuntbot():
 
 
 
-@tasks.loop(seconds=random.randrange(60, 120))
+@tasks.loop(seconds=random.randrange(35, 120))
 async def autorandomcommand():
     channel = client.get_channel(owochannel)
     await channel.trigger_typing()
@@ -559,12 +563,13 @@ async def help(ctx):
 
 @client.command()
 async def autoowo(ctx):
+    wait =random.randrange(3, 8)
     await ctx.send("> Started Auto OwO")
     change_channel()
     try:
         for task in all_tasks:
             task.start()
-            await asyncio.sleep(15)
+            await asyncio.sleep(wait)
     except RuntimeError:
         return
 
