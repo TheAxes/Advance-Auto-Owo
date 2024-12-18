@@ -265,7 +265,7 @@ async def on_message(message):
                 message.content = normalize_message(message.content)
                 if message.channel.id in owochannels or message.channel.id == owodm:
                     if ("⚠️" in message.content) and (("letter word" in message.content)
-                    or ("link" in message.conten or "https://owobot.com" in message.content)
+                    or ("link" in message.content or "https://owobot.com" in message.content)
                 ):
                         for task in all_tasks_stop:
                             task.cancel()
