@@ -34,7 +34,7 @@ import sys
 sentences = RandomSentence()
 
 
-version = "1.4" # Logic * 69999999999999999
+version = "1.5" # Logic * 69999999999999999
 
 def clear():
     os.system("title Advanced Auto OwO && cls" if os.name == "nt" else "clear")
@@ -264,7 +264,7 @@ async def on_message(message):
                 # Check for captcha detection messagetent 
                 message.content = normalize_message(message.content)
                 if message.channel.id in owochannels or message.channel.id == owodm:
-                    if ("⚠️" in message.content) and (("letter word" in message.content)
+                    if ("âš ï¸" in message.content) and (("letter word" in message.content)
                     or ("link" in message.content or "https://owobot.com" in message.content)
                 ):
                         for task in all_tasks_stop:
@@ -286,40 +286,36 @@ async def on_message(message):
                             solution = solvecap(captcha, lambaa=None)
                         user = client.get_user(408785106942164992)
                         if solution.split("|")[1] == "image":
-                                await user.send(solution.split("|")[0])
-                        elif solution.split("|")[1] == "hcap":
-                            await user.send("ok")
-                        try:
-                                verification_message = await asyncio.wait_for(
+                            await user.send(solution.split("|")[0])
+                            try:
+                                    verification_message = await asyncio.wait_for(
                                     client.wait_for(
-                                        "message",
-                                        check=lambda m: m.author == message.author
+                                        "message", check=lambda m: m.author == message.author
                                         and "I have verified that you are human! Thank you! :3"
                                         in m.content
-                                        ),
-                                        timeout=240,
-                                        )
-                                print(verification_message.content)
-                                if "I have verified" in verification_message.content:
-                                    channel = client.get_channel(owochannel)
-                                    sendhook(hook_url=captcha_hook_url,
-                                             content=f"@everyone Captcha Alert!",
-                                             description=f"Captcha Has Been Solved!", image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448")
-                                    await channel.send(f"{prefix}autoowo")
-                                else:
-                                    sendhook(hook_url=captcha_hook_url, image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448"
-                                             ,content=f"@everyone Captcha Alert!",
-                                             description=f"A Captcha Cant Be Solved, Bot Has Been Stopped!",
-                                             )
-                                    time.sleep(4)
-                                    sys.exit()
-                        except asyncio.TimeoutError:
+                                        ), timeout=240)
+                                    if "I have verified" in verification_message.content:
+                                        channel = client.get_channel(owochannel)
+                                        sendhook(hook_url=captcha_hook_url, content=f"@everyone Captcha Alert!", description=f"Captcha Has Been Solved!", image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448")
+                                        await channel.send(f"{prefix}autoowo")
+                                    else:
+                                        sendhook(hook_url=captcha_hook_url, image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448" ,content=f"@everyone Captcha Alert!", description=f"A Captcha Cant Be Solved, Bot Has Been Stopped!")
+                                        time.sleep(4)
+                                        sys.exit()
+                            except asyncio.TimeoutError:
                                 print(f"{Fore.RED}[Timeout] captcha timed out.{Fore.RESET}")
-                                sendhook(hook_url=captcha_hook_url, image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448",
-                                         content=f"@everyone Captcha Alert!",description=f"A Captcha Cant Be Solved, Bot Has Been Stopped!, Reason: Captcha Took Too Long Too Solve",
-                                         )
+                                sendhook(hook_url=captcha_hook_url, image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448", content=f"@everyone Captcha Alert!",description=f"A Captcha Cant Be Solved, Bot Has Been Stopped!, Reason: Captcha Took Too Long Too Solve")
                                 time.sleep(5)
                                 sys.exit()
+                        elif solution.split("|")[0] == "solved":
+                            channel = client.get_channel(owochannel)
+                            sendhook(hook_url=captcha_hook_url, content=f"@everyone Captcha Alert!", description=f"Captcha Has Been Solved!", image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448")
+                            await channel.send(f"{prefix}autoowo")
+                        else:
+                            sendhook(hook_url=captcha_hook_url, image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448" ,content=f"@everyone Captcha Alert!", description=f"A Captcha Cant Be Solved, Bot Has Been Stopped!")
+                            time.sleep(4)
+                            sys.exit()
+                        
                     
                     elif "nu" or "your next" or "your daily" in message.content.lower():
                         if globalname in message.content:
@@ -549,12 +545,12 @@ async def help(ctx):
     ```ini
     [Made By @TheAxes]
       [Help Command]
-⁙ {prefix}autoowo - Starts Farming OwO Automatically
-⁙ {prefix}stopautoowo - stops Farming OwO
-⁙ {prefix}chhservicekey (new key) - changes hcaptcha service key
-⁙ {prefix}chtexttoimagekey (new key) - changes texttoimage service key
-⁙ {prefix}balance - returns each service balances
-⁙ {prefix}info - returns the instance info along other details
+â™ {prefix}autoowo - Starts Farming OwO Automatically
+â™ {prefix}stopautoowo - stops Farming OwO
+â™ {prefix}chhservicekey (new key) - changes hcaptcha service key
+â™ {prefix}chtexttoimagekey (new key) - changes texttoimage service key
+â™ {prefix}balance - returns each service balances
+â™ {prefix}info - returns the instance info along other details
 ```
         [Github.com/TheAxes]
 '''
