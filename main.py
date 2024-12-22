@@ -34,7 +34,7 @@ import sys
 sentences = RandomSentence()
 
 
-version = "1.5" # Logic * 69999999999999999
+version = "1.4" # Logic * 69999999999999999
 
 def clear():
     os.system("title Advanced Auto OwO && cls" if os.name == "nt" else "clear")
@@ -264,7 +264,7 @@ async def on_message(message):
                 # Check for captcha detection messagetent 
                 message.content = normalize_message(message.content)
                 if message.channel.id in owochannels or message.channel.id == owodm:
-                    if ("âš ï¸" in message.content) and (("letter word" in message.content)
+                    if ("⚠️" in message.content) and (("letter word" in message.content)
                     or ("link" in message.content or "https://owobot.com" in message.content)
                 ):
                         for task in all_tasks_stop:
@@ -545,12 +545,12 @@ async def help(ctx):
     ```ini
     [Made By @TheAxes]
       [Help Command]
-â™ {prefix}autoowo - Starts Farming OwO Automatically
-â™ {prefix}stopautoowo - stops Farming OwO
-â™ {prefix}chhservicekey (new key) - changes hcaptcha service key
-â™ {prefix}chtexttoimagekey (new key) - changes texttoimage service key
-â™ {prefix}balance - returns each service balances
-â™ {prefix}info - returns the instance info along other details
+⁙ {prefix}autoowo - Starts Farming OwO Automatically
+⁙ {prefix}stopautoowo - stops Farming OwO
+⁙ {prefix}chhservicekey (new key) - changes hcaptcha service key
+⁙ {prefix}chtexttoimagekey (new key) - changes texttoimage service key
+⁙ {prefix}balance - returns each service balances
+⁙ {prefix}info - returns the instance info along other details
 ```
         [Github.com/TheAxes]
 '''
