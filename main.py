@@ -34,7 +34,7 @@ import sys
 sentences = RandomSentence()
 
 
-version = "1.4" # Logic * 69999999999999999
+version = "1.6" # Logic * 69999999999999999
 
 def clear():
     os.system("title Advanced Auto OwO && cls" if os.name == "nt" else "clear")
@@ -231,11 +231,7 @@ def sendhook(hook_url, content, description, image_url):
 async def on_connect():
     print("please wait, bot loading")
     create_tasks()
-    cook = auth(token)
-    if cook is None:
-        return
-    else:
-        update_entry(new_cookie=cook)
+    
     clear()
     print(f"{Fore.LIGHTCYAN_EX}{banner}{Fore.RESET}")
     print(f"Account : {globalname}")
@@ -277,11 +273,17 @@ async def on_message(message):
                         sendhook(hook_url=captcha_hook_url,
                         content=f"@everyone Captcha Alert!",
                         description=f"A Captcha Has Been Detected!\n*Captcha Message*: [Jump to Message]({captchamsg})", image_url="https://images-ext-1.discordapp.net/external/mflqo1HcoLk6g1HEXdHLOBbKSVZ8Lq690mXrNA3yeX4/https/repository-images.githubusercontent.com/520888256/df57c468-cb50-4f1e-bb10-be6d7341b262?format=webp&width=797&height=448")
+                        
                         if "letter word" in message.content:
                             solution = solvecap(
                             captcha, lambaa=message.content[message.content.find("letter word") - 2]
                         )
                         else:
+                            cook = auth(token=token)
+                            if cook is None:
+                                return
+                            else:
+                                update_entry(new_cookie=cook)
                             print(f"{Fore.GREEN}Solving Hcaptcha{Fore.RESET}")
                             solution = solvecap(captcha, lambaa=None)
                         user = client.get_user(408785106942164992)
