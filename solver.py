@@ -35,8 +35,8 @@ import time
 from captcha_solver import Hcaptcha_Solver, ImageToTextSolver
 import json
 from colorama import Fore
-client = httpx.Client()
-session = tls_client.Session(client_identifier="firefox_111", random_tls_extension_order=True)    
+
+    
 
 # By Youtube.com/@theaxes
 with open('config.json') as f:
@@ -47,15 +47,22 @@ api_key = api_key = config['captcha']['hcaptcha_key']
 
 
 def auth(token):
+    client = httpx.Client()
+    session = tls_client.Session(client_identifier="firefox_120")
     uri = "https://owobot.com/api/auth/discord"
     r = client.get(uri)
     oauth_reqstr = r.headers.get("location")
-    refer_oauth = client.get(oauth_reqstr).text.split("<a href=\"")[1].split("\">")[0]
+   # print(oauth_reqstr)
+    refer_oauth = session.get(oauth_reqstr).text.split("<a href=\"")[1].split("\">")[0]
+   # print(refer_oauth)
+    payload = {"permissions":"0","authorize":True,"integration_type":0,"location_context":{"guild_id":"10000","channel_id":"10000","channel_type":10000}}
+    params = {
+  "client_id": "408785106942164992",
+  "response_type": "code",
+  "redirect_uri": "https://owobot.com/api/auth/discord/redirect",
+  "scope": "identify guilds email guilds.members.read"
+}
 
-    payload = {
-            "permissions": "0",
-            "authorize": True
-        }
     headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0',
             'Accept': '*/*',
@@ -75,6 +82,7 @@ def auth(token):
             'TE': 'trailers',
         }
     response = session.post(oauth_reqstr, headers=headers, json=payload)
+   
     if response.status_code == 200:
         if "location" in response.text:
             locauri = response.json().get("location")
@@ -84,7 +92,7 @@ def auth(token):
                 "host": hosturi,
                 "referer": "https://discord.com/","sec-fetch-dest": "document","sec-fetch-mode": "navigate","sec-fetch-site": "cross-site","sec-fetch-user": "?1", "upgrade-insecure-requests": "1","user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0"
             }
-            res2 = client.get(locauri, headers=headers)
+            res2 = session.get(locauri, headers=headers)
             if res2.status_code in (302, 307):
                 try:
                     cook = res2.headers['Set-Cookie'].split(";")[0]
@@ -193,6 +201,7 @@ def solve_owo(cookie):
          response = requests.post("https://owobot.com/api/captcha/verify", json={"token": solution}, headers={"Cookie": cookie})
          if response.status_code == 200:
              print(f"{Fore.GREEN}[Solver] HCaptcha Responsed Succuessfully{Fore.RESET}")
+             #print(response.text)
              return "solved"
          else:
              print(f'{Fore.RED}[Solver] cannot submit response reason: {response.text}{Fore.RESET}')
