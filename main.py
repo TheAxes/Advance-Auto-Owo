@@ -34,7 +34,7 @@ import sys
 sentences = RandomSentence()
 
 
-version = "1.6" # Logic * 69999999999999999
+version = "1.7" # Logic * 69999999999999999
 
 def clear():
     os.system("title Advanced Auto OwO && cls" if os.name == "nt" else "clear")
@@ -144,6 +144,7 @@ client = commands.Bot(
     case_insensitive=True,
     self_bot=True,
     help_command=None,
+    sync_presence=False
 )
 
 
@@ -245,7 +246,14 @@ async def on_connect():
             details="Made By @TheAxes",
             timestamps={"start": time.time()},
             state="youtube.com/@theaxes",
-        ),
+            buttons=["TheAxes", "Made Only For You ❤️"],
+            metadata=["https://youtube.com/@theaxes", "https://youtube.com/@theaxes"],
+            assets=
+    {"large_image": "https://media.discordapp.net/attachments/1336378795665657958/1341091056351051776/2cbb4933cb3c03a205f4ed85167a8530.png?ex=67b4bbe0&is=67b36a60&hm=b47625464d95638d8b40be15d6502b719117506a051ea329dbc724208efb9580&=&format=webp&quality=lossless&width=291&height=291",
+    "large_text": "axesarecool",
+    "small_image": "https://media.discordapp.net/attachments/1115605458602971157/1341089828187668572/1a449430e3a9a830efebb8c57917f943.png?ex=67b4babb&is=67b3693b&hm=d8cf73451fc368c56439986d608a33e382f1090d02d3d41bd56627490ca0b435&=&format=webp&quality=lossless&width=530&height=530",
+    "small_text": "uwuuwu"
+        }), 
     )
 
 def normalize_message(content):
@@ -349,7 +357,7 @@ def change_channel():
 @tasks.loop(seconds=random.randrange(16, 45))
 async def autohunter():
     channel = client.get_channel(owochannel)
-    await channel.trigger_typing()
+    await channel.typing()
     await asyncio.sleep(2)
     await channel.send("owo hunt")
     await asyncio.sleep(15)
@@ -360,14 +368,14 @@ async def autohunter():
 async def autopray():
     channel = client.get_channel(owochannel)
     await asyncio.sleep(15)
-    await channel.trigger_typing()
+    await channel.typing()
     await channel.send("owo pray")
 
 
 @tasks.loop(seconds=random.randrange(15, 60))
 async def autolevelup():
     channel = client.get_channel(owochannel)
-    await channel.trigger_typing()
+    await channel.typing()
     await asyncio.sleep(11)
     xp = random.choice(("owo", "UwUUwU", "uwu"))
     message = random.choice((xp, f"{sentences.sentence()}owo"))
@@ -380,7 +388,7 @@ async def autodaily():
     channel = client.get_channel(owochannel)
     if not get_entry()[1] - time.time() <= 0:
         return
-    await channel.trigger_typing()
+    await channel.typing()
     await asyncio.sleep(3)
     await channel.send("owo daily")
     daily_message = await asyncio.wait_for(
@@ -520,7 +528,7 @@ async def autohuntbot():
 @tasks.loop(seconds=random.randrange(35, 120))
 async def autorandomcommand():
     channel = client.get_channel(owochannel)
-    await channel.trigger_typing()
+    await channel.typing()
     msg = random.choice(config['settings']['random_commands'])
     await channel.send(f"owo {msg}")
     await asyncio.sleep(3)
