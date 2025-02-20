@@ -207,4 +207,3 @@ def solve_owo(cookie):
              print(f'{Fore.RED}[Solver] cannot submit response reason: {response.text}{Fore.RESET}')
              return "cant" 
          
-
