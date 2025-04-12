@@ -108,6 +108,7 @@ def auth(token):
         else:
             print(f"(!) Submit Error | {response.text}")
 
+
 def solve_owo_by_scrappey_api_method(cookie):
      url = f'https://publisher.scrappey.com/api/v1?key={api_key}'
      headers = {'Content-Type': 'application/json'}
@@ -115,21 +116,33 @@ def solve_owo_by_scrappey_api_method(cookie):
     'cmd': 'request.get',
     'url': 'https://owo-captcha-solver.vercel.app/solve_hcaptcha',
     'video': True,
-    "automaticallySolveCaptchas": True,
-     "alwaysLoad": [
-        ""
-    ],
      "browserActions": [
+         {
+            "type": "wait",
+            "wait": 1
+        },
+         {
+                "type": "solve_captcha",
+                "captcha": "hcaptcha",
+                "captchaData": {
+                    "sitekey": "a6a1d5ce-612d-472d-8e37-7601408fbc09"
+                }
+            },
+{
+                "type": "execute_js",
+                "code": "document.getElementsByName('h-captcha-response')[0].value = '{javascriptReturn[0]}'"
+            },
              {
             "type": "wait",
-            "wait": 5
+            "wait": 10
         },
             
             ]
 }
      response = requests.post(url, headers=headers, json=data)
-     if response.json()['solution']['innerText']:
+     if response.json()["solution"]["javascriptReturn"][0]:
          print(f"{Fore.LIGHTBLUE_EX}[{hservice}] Solved Hcaptcha, Submitting results to owobot...{Fore.RESET}")
+         print(response.json()["solution"]["javascriptReturn"][0])
          res = requests.post("https://owobot.com/api/captcha/verify", json={"token": response.json()['solution']['innerText']}, headers={"Cookie": cookie})
          if res.status_code == 200:
              print(f"{Fore.GREEN}[Solver] HCaptcha Responsed Succuessfully{Fore.RESET}")
@@ -180,7 +193,7 @@ def solve_owo_by_scrappey(cookie):
 }
     response = requests.post(url, headers=headers, json=data)
     try:
-        if response.json()["solution"]["innerText"]:
+        if response.json()["solution"]["javascriptReturn"][0]:
             if "I have verified that you're a human!" in response.json()["solution"]["innerText"]:
                 print(f"{Fore.LIGHTBLUE_EX}[{hservice}] Solved Hcaptcha,  results submitted to owobot...{Fore.RESET}")
                 return "solved"
@@ -195,7 +208,9 @@ def solve_owo_by_scrappey(cookie):
 def solve_owo(cookie):
      if hservice == "scrappey":
          sol = solve_owo_by_scrappey_api_method(cookie)
+         print(sol)
          return sol
+     
      else:
          solution = Hcaptcha_Solver()
          response = requests.post("https://owobot.com/api/captcha/verify", json={"token": solution}, headers={"Cookie": cookie})
@@ -205,5 +220,7 @@ def solve_owo(cookie):
              return "solved"
          else:
              print(f'{Fore.RED}[Solver] cannot submit response reason: {response.text}{Fore.RESET}')
+             print(solution)
+             
              return "cant" 
-         
+
