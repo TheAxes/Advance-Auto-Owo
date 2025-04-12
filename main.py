@@ -34,7 +34,7 @@ import sys
 sentences = RandomSentence()
 
 
-version = "1.7" # Logic * 69999999999999999
+version = "1.8" # Logic * 69999999999999999
 
 def clear():
     os.system("title Advanced Auto OwO && cls" if os.name == "nt" else "clear")
